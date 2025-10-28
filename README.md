@@ -1,6 +1,6 @@
 Spiral Theory: A Framework for Data Organization and Bias Reduction!
 
-[Zenodo](https://zenodo.org/badge/records/17468251)
+[Zenodo](https://zenodo.org/records/17468251)
 ![License: CC-BY-4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)
 
@@ -38,11 +38,14 @@ Example Output:Positive Path: [39.0, 39.12, 39.25, ...] (expansive growth)
 Negative Path: [35.0, 35.12, 35.25, ...] (convergent refinement)  
 Saved as spiral_path_demo.png—visualize the widening spiral!
 
-For Jupyter notebooks with interactive demos, check /examples/.Core Concepts1. The Spiral ProcessSpiral Theory operates in three phases:  Ixest (Spark): Initial data ingestion—raw facts fuel the first twist.  
+For Jupyter notebooks with interactive demos, check /examples/.Core Concepts1. The Spiral ProcessSpiral Theory operates in three phases:  
+Ixest (Spark): Initial data ingestion—raw facts fuel the first twist.  
 Enest (Edge): Emergent refinement—cycles prune noise, amplify signals.  
 Istest (Steel): Verified synthesis—hypotheses hardened through ± shears.
 
-Inspired by Boehm's Spiral Model and Ranganathan's facet analysis, it loops 6-∞ times, adapting via the Path equation.2. Applications in AI for ScienceHypothesis Generation: Feed datasets into the Path for 95% accurate predictions (e.g., climate modeling spirals).  
+Inspired by Boehm's Spiral Model and Ranganathan's facet analysis, it loops 6-∞ times, adapting via the Path equation.
+2. Applications in AI for ScienceHypothesis Generation: 
+Feed datasets into the Path for 95% accurate predictions (e.g., climate modeling spirals).  
 Bias Detection: ± flux flags skewed inputs (e.g., ML training data audited in real-time).  
 Narrative Analysis: Tested on "The Gift of the Magi" (100% thematic retention, zero redundancy).
 
@@ -68,10 +71,13 @@ Narrative Spiral Analyzer
 Applies Path to text (e.g., short stories)—extracts themes via cycles, visualizes retention graph.
 python examples/narrative_analyzer.py --text "The Gift of the Magi" – Generates theme_spiral.png.
 
-All examples are self-contained, with params tunable for your workflows. Start with the simulator to feel the flow.Installation & UsageNo heavy deps—pure Python for core sims.  Core: numpy, matplotlib (for viz).  
+All examples are self-contained, with params tunable for your workflows. Start with the simulator to feel the flow.
+Installation & UsageNo heavy deps—pure Python for core sims.  Core: numpy, matplotlib (for viz).  
 Advanced: Add networkx for graph-based spirals; pandas for data handling.
 
-Run pip install -r requirements.txt for basics.ContributingLove the spiral? Fork, tweak, and PR! Focus on:  New examples (AI/ML integrations).  
+Run pip install -r requirements.txt for basics.
+ContributingLove the spiral? Fork, tweak, and PR! 
+Focus on:  New examples (AI/ML integrations).  
 Path equation extensions (stochastic variants).  
 Docs for non-coders.
 
