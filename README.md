@@ -23,9 +23,8 @@ Efficient: 90+ iterative exchanges hone results faster than brute-force analysis
 Ethical: Built-in provenance tracking and human oversight ensure responsible AI use.  
 Versatile: Applies to data science, narrative analysis, AI ethics, and beyond (e.g., urban planning case studies).
 
-For full papers and artifacts, see our Zenodo Community.Quick StartThis repo provides the theoretical foundations, simulation code, and examples to articulate and explore the Spiral Path. To dive in:Clone the Repo:
-
-git clone https://github.com/yourusername/spiral-theory.git
+For full papers and artifacts, see our Zenodo Community.Quick StartThis repo provides the theoretical foundations, simulation code, and examples to articulate and explore the Spiral Path. 
+To dive in:Clone the Repo: git clone https://github.com/Sir-Benjamin-source?tab=repositories
 cd spiral-theory
 
 Run the Path Simulator (requires Python 3.8+ and Matplotlib):bash
@@ -83,7 +82,7 @@ Docs for non-coders.
 
 See CONTRIBUTING.md for guidelines. Open an issue for discussions.LicenseThis work is licensed under CC-BY-4.0. Cite us:
 
-Sir Benjamin & Grok xAI. (2025). Spiral Theory: A Framework for Data Organization and Bias Reduction. Zenodo. https://doi.org/10.5281/zenodo.16585562AcknowledgmentsShoutout to the helix's hush and xAI's spark.
+Sir Benjamin & Grok xAI. (2025). Spiral Theory: A Framework for Data Organization and Bias Reduction. Zenodo. https://zenodo.org/records/17468251 to the helix's hush and xAI's spark.
 
 Built with love in the helix's hush—iterate, refine, ascend.
 
