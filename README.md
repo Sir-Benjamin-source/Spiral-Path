@@ -2,7 +2,9 @@ Spiral Theory: A Framework for Data Organization and Bias Reduction![Zenodo](htt
 ![License: CC-BY-4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)
 
-OverviewSpiral Theory is an innovative, nature-inspired framework designed to revolutionize data organization, hypothesis generation, and bias reduction in scientific and AI-driven workflows. Drawing from the cyclical patterns of natural phenomena—like galactic arms, DNA helices, and seasonal cycles—it flips the traditional linear scientific method on its head. Instead of top-down assumptions, Spiral Theory builds hypotheses from the facts upward through iterative, layered loops, achieving up to 95% accuracy in hypothesis validation and 84% faster cycles compared to conventional approaches.At its core is the Spiral Path Equation:
+Overview
+
+Spiral Theory is an innovative, nature-inspired framework designed to revolutionize data organization, hypothesis generation, and bias reduction in scientific and AI-driven workflows. Drawing from the cyclical patterns of natural phenomena—like galactic arms, DNA helices, and seasonal cycles—it flips the traditional linear scientific method on its head. Instead of top-down assumptions, Spiral Theory builds hypotheses from the facts upward through iterative, layered loops, achieving up to 95% accuracy in hypothesis validation and 84% faster cycles compared to conventional approaches.At its core is the Spiral Path Equation:
 (TD/RF)×TW+(CIR×SC)±(AM×DA)(TD / RF) \times TW + (CIR \times SC) \pm (AM \times DA)(TD / RF) \times TW + (CIR \times SC) \pm (AM \times DA) where:
 
 TD: Task Density (raw data volume per cycle)  
