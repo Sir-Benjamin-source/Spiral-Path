@@ -94,7 +94,7 @@ Love the spiral? Fork, tweak, and PR! Focus on:
 - Path equation extensions (stochastic variants).  
 - Docs for non-coders.  
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Co-authorship via our [Lighthouse Beacon](https://zenodo.org/records/[pending])—ethical and easy.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Co-authorship via our [Lighthouse Beacon](https://zenodo.org/records/17468251)—ethical and easy.
 
 ## License
 
