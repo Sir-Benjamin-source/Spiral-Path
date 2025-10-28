@@ -36,20 +36,29 @@ class SpiralEngine:
         })
         return path_value
     
-    def simulate_spiral(self, params, iterations=5, sign='+', growth_rate=0.01):
+    def simulate_spiral(self, params, iterations=5, sign='+', growth_rate=0.01, noise_level=0.05):
         """
-        Multi-cycle simulation with optional growth (e.g., td *= 1 + growth_rate).
+        Multi-cycle simulation with optional growth and stochastic noise.
         Args:
             params (dict): Initial {'td':, 'rf':, 'tw':, 'cir':, 'am':, 'da':}
             iterations (int): Number of cycles
             sign (str): '+' or '-'
             growth_rate (float): Parametric evolution per cycle (default minimal)
+            noise_level (float): Std dev for Gaussian noise on params per cycle (default 0 for deterministic).
         Returns:
             list: Path values over iterations
         """
         values = []
         current_params = params.copy()
         for i in range(iterations):
+            # Add noise if enabled (jitter key params for realism)
+            if noise_level > 0:
+                current_params['td'] += np.random.normal(0, noise_level * current_params['td'])
+                current_params['da'] += np.random.normal(0, noise_level * current_params['da'])
+                # Clamp to positive
+                current_params['td'] = max(0.1, current_params['td'])
+                current_params['da'] = max(0.1, current_params['da'])
+            
             value = self.compute_path(
                 current_params['td'], current_params['rf'], current_params['tw'],
                 current_params['cir'], current_params['am'], current_params['da'], sign
@@ -85,12 +94,16 @@ if __name__ == "__main__":
     single_value = engine.compute_path(**params, sign='+')
     print(f"Single Cycle Value (+): {single_value}")
     
-    # Simulation
-    spiral_values = engine.simulate_spiral(params, iterations=5)
-    print("Simulation Values:", spiral_values)
+    # Simulation (deterministic)
+    spiral_values = engine.simulate_spiral(params, iterations=5, noise_level=0)
+    print("Deterministic Simulation Values:", spiral_values)
     
-    # Viz
-    engine.visualize_spiral(spiral_values)
+    # Stochastic sim
+    noisy_values = engine.simulate_spiral(params, iterations=5, noise_level=0.05)
+    print("Stochastic Simulation Values:", noisy_values)
+    
+    # Viz the noisy one
+    engine.visualize_spiral(noisy_values, title='Stochastic Spiral Path')
     
     # Provenance
     print("Provenance Log (last entry):", engine.get_provenance()[-1])
