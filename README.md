@@ -1,4 +1,6 @@
-Spiral Theory: A Framework for Data Organization and Bias Reduction![Zenodo](https://zenodo.org/badge/latestdoi/16585562.svg)
+Spiral Theory: A Framework for Data Organization and Bias Reduction!
+
+[Zenodo](https://zenodo.org/badge/latestdoi/16585562.svg)
 ![License: CC-BY-4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)
 
