@@ -84,15 +84,37 @@ if uploaded_file is not None:
         ax.legend()
         st.pyplot(fig)
         
-        # Narrative Pairing
-        narrative = f"This document elucidates with {retention:.1f}% retention—core indicators hold steady through {iterations} cycles. Uplift of {uplift:.1f}% suggests refined insights in denser chunks. Lean {sign} for {'exploration' if sign == '+' else 'convergence'}."
-        st.markdown(f"**Insight Summary:** {narrative}")
+        # Narrative Pairing (Dynamic Responses)
+        avg_base = np.mean([ind['base'] for ind in indicators])
+        adj_var = np.var([ind['adjustment'] for ind in indicators])
+        retention = 100 - (np.std(values) / np.mean(values) * 100)
+        uplift = (values[-1] - values[0]) / values[0] * 100
         
-        # Provenance
-        st.subheader("Provenance Log (Last Cycle)")
-        st.json(indicators[-1])
+        # 5 Standard Responses (Tune thresholds as needed)
+        responses = {
+            'high_tension': "Graph shows high base ({avg_base:.1f})—tension buildup in core chunks; more RF (try 1.8+) to prune and release blockage for clearer locution.",
+            'low_adjustment': "Low adjustment variance ({adj_var:.3f}) suggests stable flow; less DA (try 1.5) to find subtle locution shifts without over-exploring.",
+            'high_retention': "Strong retention ({retention:.1f}%) holds the narrative tight; more TW (try 2.5) to amplify uplift ({uplift:.1f}%) and unlock deeper insights.",
+            'low_uplift': "Modest uplift ({uplift:.1f}%) indicates convergent path; less noise (try 0.02) or switch to + sign to stir locution for bolder release.",
+            'balanced': "Balanced spiral (retention {retention:.1f}%, uplift {uplift:.1f}%)—tune CIR up (try 2.0) to sustain the flow and spot hidden locution in the chunks."
+        }
         
-        # Export
+        # Pick response based on indicators (thresholds for demo—tune to your data)
+        if avg_base > 450:
+            response = responses['high_tension'].format(avg_base=avg_base)
+        elif adj_var < 0.1:
+            response = responses['low_adjustment'].format(adj_var=adj_var)
+        elif retention > 95:
+            response = responses['high_retention'].format(avg_base=avg_base, retention=retention, uplift=uplift)
+        elif uplift < 1.0:
+            response = responses['low_uplift'].format(uplift=uplift)
+        else:
+            response = responses['balanced'].format(retention=retention, uplift=uplift)
+        
+        st.markdown(f"**Dynamic Insight:** {response}")
+        st.info("These tune suggestions help release blockage (stuck ideas) and spotlight locution (key phrases)—plug into an LLM for deeper riff.")
+
+        # Export (include response)
         export_data = {
             'params': params,
             'indicators': indicators,
@@ -102,7 +124,7 @@ if uploaded_file is not None:
             'noise_level': noise,
             'retention_pct': retention,
             'uplift_pct': uplift,
-            'summary': narrative
+            'dynamic_response': response
         }
         st.download_button(
             label="Save Elucidation (JSON)",
@@ -110,17 +132,15 @@ if uploaded_file is not None:
             file_name=f"spiral_{int(time.time())}.json",
             mime="application/json"
         )
-        st.info("Export for sharing—drop into a NB or collab with your AI pal!")
-    
+        st.info("Export for sharing—drop into a NB or LLM for full riff.")
+
     # Narrative Tune-Up (Scoped with session_state check)
     if st.button("Elucidate Narrative", key="narrative_elucidate"):
-        values = st.session_state.get('values', [])  # Safe dict get, fallback empty list
-        retention = st.session_state.get('retention', 100.0)
-        uplift = st.session_state.get('uplift', 0.0)
-        
-        if not values:
+        if 'values' not in st.session_state or not st.session_state.values:
             st.warning("Run 'Spiral Elucidate' first to generate values!")
             st.stop()
+        
+        values = st.session_state.values  # Pull the list, not method
         
         from sklearn.feature_extraction.text import TfidfVectorizer
         from sklearn.cluster import KMeans
@@ -155,9 +175,6 @@ if uploaded_file is not None:
         st.json(top_themes)
         
         st.info("Tune RF higher for tighter themes; + sign explores, - converges.")
-
-st.markdown("---")
-st.write("Built with Spiral Theory + Elucidation—fork on GitHub, cite via Zenodo DOI: https://doi.org/10.5281/zenodo.16585562. Ethical AI: Human seal encouraged.")
 
 st.markdown("---")
 st.write("Built with Spiral Theory + Elucidation—fork on GitHub, cite via Zenodo DOI: https://doi.org/10.5281/zenodo.16585562. Ethical AI: Human seal encouraged.")
