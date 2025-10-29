@@ -41,14 +41,14 @@ if uploaded_file is not None:
     rf = st.sidebar.number_input("RF (Refinement Factor)", value=1.5, step=0.1)
     tw = st.sidebar.number_input("TW (Twist Weight)", value=2.0, step=0.1)
     cir = st.sidebar.number_input("CIR (Cycle Intensity Ratio)", value=1.5, step=0.1)
-    am = st.sidebar.number_input("AM (Adjustment Magnitude)", value=0.1, step=0.1)
+    am = st.sidebar.number_input("AM (Adjustment Magnitude)", value=0.2, step=0.1)
     da = st.sidebar.number_input("DA (Differentiation Angle)", value=np.pi/3, step=0.1)
     sc = st.sidebar.number_input("SC (Spiral Constant)", value=1.618, step=0.01)
     iterations = st.sidebar.slider("Iterations", 3, 10, 5)
     sign = st.sidebar.selectbox("Sign (±)", ['+', '-'])
     noise = st.sidebar.slider("Noise Level", 0.0, 0.1, 0.03)
 
-   if st.button("Spiral Elucidate", key="elucidate_spiral"):
+    if st.button("Spiral Elucidate", key="elucidate_spiral"):
         engine = SpiralEngine(sc=sc)
         params = {'td': td, 'rf': rf, 'tw': tw, 'cir': cir, 'am': am, 'da': da}
         
@@ -57,6 +57,7 @@ if uploaded_file is not None:
         # Store in session_state for sharing
         st.session_state.values = values
         st.session_state.indicators = indicators
+        
         st.subheader("Path Indicators")
         for ind in indicators:
             st.write(f"Cycle {ind['cycle']}: Base {ind['base']:.2f}, Adjustment {ind['adjustment']:.2f}, Value {ind['value']:.2f}")
@@ -100,14 +101,9 @@ if uploaded_file is not None:
             mime="application/json"
         )
         st.info("Export for sharing—drop into a NB or collab with your AI pal!")
-
-    # Narrative Tune-Up (Now in scope with session_state)
-if st.button("Elucidate Narrative", key="narrative_elucidate"):
-        if 'values' not in st.session_state or 'indicators' not in st.session_state:
-            st.warning("Run 'Spiral Elucidate' first to generate values!")
-            st.stop()
-          # Narrative Tune-Up (Scoped with session_state check)
-    if st.button("Elucidate Narrative"):
+    
+    # Narrative Tune-Up (Scoped with session_state check)
+    if st.button("Elucidate Narrative", key="narrative_elucidate"):
         if 'values' not in st.session_state or not st.session_state.values:
             st.warning("Run 'Spiral Elucidate' first to generate values!")
             st.stop()
