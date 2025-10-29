@@ -55,8 +55,14 @@ if uploaded_file is not None:
         values, indicators = engine.simulate_spiral_with_indicators(params, iterations=iterations, sign=sign, noise_level=noise)
         
         # Store in session_state for sharing
-        st.session_state['values'] = values
-        st.session_state['indicators'] = indicators
+        st.session_state.values = values
+        st.session_state.indicators = indicators
+        
+        # Calculate and store retention/uplift
+        retention = 100 - (np.std(values) / np.mean(values) * 100)
+        uplift = (values[-1] - values[0]) / values[0] * 100
+        st.session_state.retention = retention
+        st.session_state.uplift = uplift
         
         st.subheader("Path Indicators")
         for ind in indicators:
@@ -73,8 +79,6 @@ if uploaded_file is not None:
         st.pyplot(fig)
         
         # Narrative Pairing
-        retention = 100 - (np.std(values) / np.mean(values) * 100)
-        uplift = (values[-1] - values[0]) / values[0] * 100
         narrative = f"This document elucidates with {retention:.1f}% retention—core indicators hold steady through {iterations} cycles. Uplift of {uplift:.1f}% suggests refined insights in denser chunks. Lean {sign} for {'exploration' if sign == '+' else 'convergence'}."
         st.markdown(f"**Insight Summary:** {narrative}")
         
@@ -104,11 +108,15 @@ if uploaded_file is not None:
     
     # Narrative Tune-Up (Scoped with session_state check)
     if st.button("Elucidate Narrative", key="narrative_elucidate"):
-        values = st.session_state.get('values', [])  # Safe dict get, fallback empty list
-        
-        if not values:
+        if 'values' not in st.session_state or not st.session_state.values:
             st.warning("Run 'Spiral Elucidate' first to generate values!")
             st.stop()
+        
+        values = st.session_state.values  # Pull the list, not method
+        
+        # Get retention/uplift from session_state (or recalc if missing)
+        retention = st.session_state.get('retention', 100 - (np.std(values) / np.mean(values) * 100))
+        uplift = st.session_state.get('uplift', (values[-1] - values[0]) / values[0] * 100)
         
         from sklearn.feature_extraction.text import TfidfVectorizer
         from sklearn.cluster import KMeans
