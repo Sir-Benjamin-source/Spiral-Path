@@ -1,8 +1,7 @@
 import sys
 import os
-# Add repo root to path (handles subdir runs)
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+import json
+import time
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,18 +12,18 @@ st.write("Tweak params, hit 'Run Spiral,' see the magic unfold. Ethical note: Lo
 
 # Sidebar for params
 st.sidebar.header("Path Parameters")
-td = st.sidebar.slider("TD (Task Density)", 1.0, 20.0, 10.0)
-rf = st.sidebar.slider("RF (Refinement Factor)", 0.5, 5.0, 2.0)
-tw = st.sidebar.slider("TW (Twist Weight)", 1.0, 10.0, 5.0)
-cir = st.sidebar.slider("CIR (Cycle Intensity Ratio)", 1.0, 5.0, 3.0)
-am = st.sidebar.slider("AM (Adjustment Magnitude)", 0.5, 3.0, 1.0)
-da = st.sidebar.slider("DA (Differentiation Angle)", 0.5, np.pi, 2.0)
-sc = st.sidebar.slider("SC (Spiral Constant)", 1.0, 2.0, 1.618)
+td = st.sidebar.number_input("TD (Task Density)", value=10.0, step=0.1, format="%.2f")
+rf = st.sidebar.number_input("RF (Refinement Factor)", value=2.0, step=0.1, format="%.2f")
+tw = st.sidebar.number_input("TW (Twist Weight)", value=5.0, step=0.1, format="%.2f")
+cir = st.sidebar.number_input("CIR (Cycle Intensity Ratio)", value=3.0, step=0.1, format="%.2f")
+am = st.sidebar.number_input("AM (Adjustment Magnitude)", value=1.0, step=0.1, format="%.2f")
+da = st.sidebar.number_input("DA (Differentiation Angle)", value=2.0, step=0.1, format="%.2f")
+sc = st.sidebar.number_input("SC (Spiral Constant)", value=1.618, step=0.01, format="%.3f")
 iterations = st.sidebar.slider("Iterations", 3, 10, 5)
 sign = st.sidebar.selectbox("Sign (±)", ['+', '-'])
 noise = st.sidebar.slider("Noise Level", 0.0, 0.1, 0.05)
 
-if st.button("Run Spiral"):if st.button("Run Spiral"):
+if st.button("Run Spiral"):
     engine = SpiralEngine(sc=sc)
     params = {'td': td, 'rf': rf, 'tw': tw, 'cir': cir, 'am': am, 'da': da}
     
@@ -63,3 +62,6 @@ if st.button("Run Spiral"):if st.button("Run Spiral"):
         mime="application/json"
     )
     st.info("Export for sharing—drop into a NB or collab with your AI pal!")
+
+st.markdown("---")
+st.write("Built with Spiral Theory—fork on GitHub, cite via Zenodo DOI: https://doi.org/10.5281/zenodo.16585562. Ethical AI: Human seal encouraged.")
