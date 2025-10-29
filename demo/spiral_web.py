@@ -55,8 +55,8 @@ if uploaded_file is not None:
         values, indicators = engine.simulate_spiral_with_indicators(params, iterations=iterations, sign=sign, noise_level=noise)
         
         # Store in session_state for sharing
-        st.session_state.values = values
-        st.session_state.indicators = indicators
+        st.session_state['values'] = values
+        st.session_state['indicators'] = indicators
         
         st.subheader("Path Indicators")
         for ind in indicators:
@@ -104,13 +104,10 @@ if uploaded_file is not None:
     
     # Narrative Tune-Up (Scoped with session_state check)
     if st.button("Elucidate Narrative", key="narrative_elucidate"):
-        if 'values' not in st.session_state or not st.session_state.values:
-            st.warning("Run 'Spiral Elucidate' first to generate values!")
-            st.stop()
+        values = st.session_state.get('values', [])  # Safe dict get, fallback empty list
         
-        values = list(st.session_state.values or [])  # Force list, fallback empty
         if not values:
-            st.warning("No values loaded—run Spiral Elucidate first!")
+            st.warning("Run 'Spiral Elucidate' first to generate values!")
             st.stop()
         
         from sklearn.feature_extraction.text import TfidfVectorizer
