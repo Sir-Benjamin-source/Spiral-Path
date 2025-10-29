@@ -58,9 +58,15 @@ if uploaded_file is not None:
         st.session_state.values = values
         st.session_state.indicators = indicators
         
-        # Calculate and store retention/uplift
-        retention = 100 - (np.std(values) / np.mean(values) * 100)
-        uplift = (values[-1] - values[0]) / values[0] * 100
+        # Calculate and store retention/uplift with fallback
+        if len(values) > 1:
+            std_val = np.std(values)
+            mean_val = np.mean(values)
+            retention = 100 - (std_val / mean_val * 100) if mean_val != 0 else 100.0
+            uplift = (values[-1] - values[0]) / values[0] * 100 if values[0] != 0 else 0.0
+        else:
+            retention = 100.0
+            uplift = 0.0
         st.session_state.retention = retention
         st.session_state.uplift = uplift
         
@@ -108,15 +114,13 @@ if uploaded_file is not None:
     
     # Narrative Tune-Up (Scoped with session_state check)
     if st.button("Elucidate Narrative", key="narrative_elucidate"):
-        if 'values' not in st.session_state or not st.session_state.values:
+        values = st.session_state.get('values', [])  # Safe dict get, fallback empty list
+        retention = st.session_state.get('retention', 100.0)
+        uplift = st.session_state.get('uplift', 0.0)
+        
+        if not values:
             st.warning("Run 'Spiral Elucidate' first to generate values!")
             st.stop()
-        
-        values = st.session_state.values  # Pull the list, not method
-        
-        # Get retention/uplift from session_state (or recalc if missing)
-        retention = st.session_state.get('retention', 100 - (np.std(values) / np.mean(values) * 100))
-        uplift = st.session_state.get('uplift', (values[-1] - values[0]) / values[0] * 100)
         
         from sklearn.feature_extraction.text import TfidfVectorizer
         from sklearn.cluster import KMeans
@@ -151,6 +155,9 @@ if uploaded_file is not None:
         st.json(top_themes)
         
         st.info("Tune RF higher for tighter themes; + sign explores, - converges.")
+
+st.markdown("---")
+st.write("Built with Spiral Theory + Elucidation—fork on GitHub, cite via Zenodo DOI: https://doi.org/10.5281/zenodo.16585562. Ethical AI: Human seal encouraged.")
 
 st.markdown("---")
 st.write("Built with Spiral Theory + Elucidation—fork on GitHub, cite via Zenodo DOI: https://doi.org/10.5281/zenodo.16585562. Ethical AI: Human seal encouraged.")
