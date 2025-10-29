@@ -2,12 +2,17 @@ import sys
 import os
 import json
 import time
+
+# Bulletproof Path Fix: Add root and current dir
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(current_dir)
+sys.path.insert(0, root_dir)
+sys.path.insert(0, current_dir)
+
 import streamlit as st
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 from spiral_engine import SpiralEngine
-
 # Path fix
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
