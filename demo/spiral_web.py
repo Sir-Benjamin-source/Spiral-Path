@@ -107,8 +107,14 @@ if uploaded_file is not None:
         if 'values' not in st.session_state or 'indicators' not in st.session_state:
             st.warning("Run 'Spiral Elucidate' first to generate values!")
             st.stop()
+          # Narrative Tune-Up (Scoped with session_state check)
+    if st.button("Elucidate Narrative"):
+        if 'values' not in st.session_state or not st.session_state.values:
+            st.warning("Run 'Spiral Elucidate' first to generate values!")
+            st.stop()
         
-        values = st.session_state.values
+        values = st.session_state.values  # Pull the list, not method
+        
         from sklearn.feature_extraction.text import TfidfVectorizer
         from sklearn.cluster import KMeans
         
@@ -117,7 +123,11 @@ if uploaded_file is not None:
         X = vectorizer.fit_transform(chunks)
         
         # Weight by path values (high-value cycles boost themes)
-        weights = np.array(values) / np.sum(values)  # Normalized
+        values_array = np.array(values)  # Ensure array
+        sum_values = np.sum(values_array)
+        if sum_values == 0:
+            sum_values = 1  # Fallback to avoid divide-by-zero
+        weights = values_array / sum_values  # Normalized safe
         weighted_X = X.multiply(weights.mean())  # Proxy for all cycles
         
         # Cluster for themes (k=3 for simplicity)
