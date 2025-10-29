@@ -17,7 +17,7 @@ st.write("Tweak params, load a dataset URL, hit 'Analyze Spiral'—watch numbers
 # Data loader section
 st.header("Load Dataset")
 url = st.text_input("Paste CSV URL (e.g., Kaggle direct link)")
-st.info("💡 For best results (and fewer parsing gremlins), use raw data/document links only—no HTML previews or compressed files. Clean CSVs spiral smoother for us slobs!")
+st.info("💡 For best results (and fewer parsing gremlins), use raw data/document links only—no HTML previews or compressed files. Clean CSVs spiral smoother")
 if st.button("Load Data"):
     if url:
         try:
