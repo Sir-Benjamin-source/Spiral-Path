@@ -1,26 +1,41 @@
 import sys
 import os
 import json
-import time
+# ... (top imports unchanged, add this after plt)
 
-# Bulletproof Path Fix: Add root, current, and debug
-current_dir = os.path.dirname(os.path.abspath(__file__))
-root_dir = os.path.dirname(current_dir)
-sys.path.insert(0, root_dir)
-sys.path.insert(0, current_dir)
-print(f"Path fixed: Root {root_dir}, Current {current_dir}")  # Debug—remove after test
+try:
+    import fitz  # PyMuPDF for PDF
+    PDF_AVAILABLE = True
+except ImportError:
+    PDF_AVAILABLE = False
+    st.warning("PyMuPDF not installed—PDFs will load as raw text (add 'pymupdf' to requirements.txt for full support).")
 
-import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
-from spiral_engine import SpiralEngine
+# File uploader
+uploaded_file = st.file_uploader("Upload PDF or RTF", type=['pdf', 'rtf'])
 
-# Rest of your code unchanged...
-# Path fix
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+if uploaded_file is not None:
+    if uploaded_file.type == "application/pdf":
+        if PDF_AVAILABLE:
+            # PDF load
+            doc = fitz.open(stream=uploaded_file.read(), filetype="pdf")
+            text = ""
+            for page in doc:
+                text += page.get_text()
+            doc.close()
+        else:
+            # Fallback: Raw bytes as text (less pretty, but works)
+            text = uploaded_file.read().decode('utf-8', errors='ignore')
+            st.warning("PDF loaded as raw text (no PyMuPDF)—install with 'pip install pymupdf' for better extraction.")
+    else:
+        # RTF as text (strip tags roughly)
+        text = uploaded_file.read().decode('utf-8')
+        text = ''.join(c for c in text if c.isalnum() or c.isspace() or c in '.,!?;:')
+    
+    # Chunk text
+    chunks = [s.strip() for s in text.split('.') if len(s.strip()) > 50]
+    st.info(f"Loaded: {len(chunks)} chunks from {uploaded_file.name}")
 
-st.title("🌀 Spiral Theory + Elucidation App")
-st.write("Load PDF/RTF, spiral the text for themes/indicators, get refined insights. Ethical note: Log for provenance!")
+# ... (sidebar and button unchanged)
 
 # File uploader
 uploaded_file = st.file_uploader("Upload PDF or RTF", type=['pdf', 'rtf'])
