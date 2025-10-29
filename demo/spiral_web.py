@@ -108,47 +108,52 @@ if uploaded_file is not None:
     
     # Narrative Tune-Up (Scoped with session_state check)
     if st.button("Elucidate Narrative", key="narrative_elucidate"):
-        values = st.session_state.get('values', [])  # Safe dict get, fallback empty list
-        retention = st.session_state.get('retention', 100.0)
-        uplift = st.session_state.get('uplift', 0.0)
-        
-        if not values:
+        if 'values' not in st.session_state or not st.session_state.values:
             st.warning("Run 'Spiral Elucidate' first to generate values!")
             st.stop()
+        
+        values = st.session_state.values  # Pull the list, not method
         
         from sklearn.feature_extraction.text import TfidfVectorizer
         from sklearn.cluster import KMeans
         
-        # Vectorize chunks
-        vectorizer = TfidfVectorizer(max_features=50)
+        # Stop words to strip (simple list, no NLTK needed)
+        stop_words = ['the', 'this', 'to', 'and', 'of', 'in', 'a', 'with', 'as', 'for', 'it', 'on', 'at', 'by', 'from']
+        
+        # Vectorize chunks with stop words
+        vectorizer = TfidfVectorizer(max_features=50, stop_words=stop_words)
         X = vectorizer.fit_transform(chunks)
         
         # Weight by path values (high-value cycles boost themes)
-        values_array = np.asarray(values, dtype=np.float64)  # Force float64 array, robust
+        values_array = np.asarray(values, dtype=np.float64)
         sum_values = np.sum(values_array)
-        sum_values = np.maximum(sum_values, 1.0)  # Clamp to avoid zero-division
-        weights = values_array / sum_values  # Normalized safe
-        weighted_X = X.multiply(weights.mean())  # Proxy for all cycles
+        sum_values = np.maximum(sum_values, 1.0)
+        weights = values_array / sum_values
+        weighted_X = X.multiply(weights.mean())
         
-        # Cluster for themes (k=3 for simplicity)
-        kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+        # Cluster for themes (k=4 for granularity)
+        kmeans = KMeans(n_clusters=4, random_state=42, n_init=10)
         theme_labels = kmeans.fit_predict(weighted_X)
         
         # Top words per theme
         feature_names = vectorizer.get_feature_names_out()
         top_themes = {}
-        for i in range(3):
+        for i in range(4):
             cluster_words = weighted_X[theme_labels == i].mean(axis=0).A1
-            top_idx = np.argsort(cluster_words)[-3:]
+            top_idx = np.argsort(cluster_words)[-2:]
             top_themes[f'Theme {i+1}'] = [feature_names[idx] for idx in top_idx]
         
-        # Final Summation
-        core_message = f"Core theme: {', '.join(top_themes['Theme 1'])} as the arrow's foil—entropy's tyranny bent by creativity's tide."
-        impact = f"Path review impact: {retention:.1f}% retention holds the narrative steady; {uplift:.1f}% uplift sharpens the philosophical edge for deeper dives."
+        # Dynamic Core Message (from top theme)
+        top_theme_words = ', '.join(top_themes['Theme 1'])
+        core_message = f"Core theme: {top_theme_words} as the arrow's foil—tension in entropy's tyranny bent by creativity's tide."
+        
+        # Dynamic Impact (from log)
+        last_indicator = st.session_state.indicators[-1]
+        avg_base = np.mean([ind['base'] for ind in st.session_state.indicators])
+        adj_var = np.var([ind['adjustment'] for ind in st.session_state.indicators])
+        impact = f"Path review impact: {retention:.1f}% retention holds steady; {uplift:.1f}% uplift sharpens the edge. High base ({avg_base:.1f}) signals tension—try more RF for release; low adjustment variance ({adj_var:.3f}) suggests stable flow, less DA for deeper locution."
+        
         st.markdown(f"**Narrative Breakdown:** {core_message} {impact}")
         st.json(top_themes)
         
         st.info("Tune RF higher for tighter themes; + sign explores, - converges.")
-
-st.markdown("---")
-st.write("Built with Spiral Theory + Elucidation—fork on GitHub, cite via Zenodo DOI: https://doi.org/10.5281/zenodo.16585562. Ethical AI: Human seal encouraged.")
