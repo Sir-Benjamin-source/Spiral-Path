@@ -2,6 +2,9 @@ import sys
 import os
 import json
 import time
+# Add repo root to path (handles subdir runs)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
