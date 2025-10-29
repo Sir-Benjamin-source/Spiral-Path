@@ -2,12 +2,20 @@ import sys
 import os
 import json
 import time
+
+# Bulletproof Path Fix: Add root, current, and debug
+current_dir = os.path.dirname(os.path.abspath(__file__))
+root_dir = os.path.dirname(current_dir)
+sys.path.insert(0, root_dir)
+sys.path.insert(0, current_dir)
+print(f"Path fixed: Root {root_dir}, Current {current_dir}")  # Debug—remove after test
+
 import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
-import fitz  # PyMuPDF for PDF
 from spiral_engine import SpiralEngine
 
+# Rest of your code unchanged...
 # Path fix
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
