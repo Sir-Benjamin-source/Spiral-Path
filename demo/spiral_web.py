@@ -24,22 +24,30 @@ iterations = st.sidebar.slider("Iterations", 3, 10, 5)
 sign = st.sidebar.selectbox("Sign (±)", ['+', '-'])
 noise = st.sidebar.slider("Noise Level", 0.0, 0.1, 0.05)
 
-if st.button("Run Spiral"):
-       # ... (after computing values and plot)
-
+if st.button("Run Spiral"):if st.button("Run Spiral"):
+    engine = SpiralEngine(sc=sc)
+    params = {'td': td, 'rf': rf, 'tw': tw, 'cir': cir, 'am': am, 'da': da}
+    
+    values = engine.simulate_spiral(params, iterations=iterations, sign=sign, noise_level=noise)
+    
     st.subheader("Spiral Values")
     st.write(values)
     
-    # Plot (existing)
+    # Plot
     fig, ax = plt.subplots(figsize=(10, 6))
-    # ... (your plot code)
+    ax.plot(values, marker='o', linewidth=2, label=f'{sign} Path')
+    ax.set_title(f'Spiral Path Evolution (Noise: {noise:.2f})')
+    ax.set_xlabel('Iteration')
+    ax.set_ylabel('Path Value')
+    ax.grid(True, alpha=0.3)
+    ax.legend()
     st.pyplot(fig)
     
     # Provenance
     st.subheader("Provenance Log (Last Cycle)")
     st.json(engine.get_provenance()[-1])
     
-    # NEW: Save Spiral Export
+    # Export
     export_data = {
         'params': params,
         'values': values,
