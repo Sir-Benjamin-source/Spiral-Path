@@ -27,7 +27,7 @@ if uploaded_file is not None:
             text += page.get_text()
         doc.close()
     else:
-        # RTF as text (strip tags roughly)
+        # RTF as text (strip tags tags roughly)
         text = uploaded_file.read().decode('utf-8')
         text = ''.join(c for c in text if c.isalnum() or c.isspace() or c in '.,!?;:')
     
@@ -118,10 +118,9 @@ if uploaded_file is not None:
         X = vectorizer.fit_transform(chunks)
         
         # Weight by path values (high-value cycles boost themes)
-        values_array = np.asarray(values)  # Ensure array, robust
+        values_array = np.asarray(values, dtype=float)  # Force float array, robust
         sum_values = np.sum(values_array)
-        sum_values = max(sum_values, 1.0) # Clamp to avoid zero-division
-        print(f"sum_values type: {type(sum_values)}")
+        sum_values = max(sum_values, 1.0)  # Clamp to avoid zero-division
         weights = values_array / sum_values  # Normalized safe
         weighted_X = X.multiply(weights.mean())  # Proxy for all cycles
         
