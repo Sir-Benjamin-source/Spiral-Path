@@ -118,9 +118,9 @@ if uploaded_file is not None:
         X = vectorizer.fit_transform(chunks)
         
         # Weight by path values (high-value cycles boost themes)
-        values_array = np.asarray(values, dtype=float)  # Force float array, robust
+        values_array = np.asarray(values, dtype=np.float64)  # Force float64 array, robust
         sum_values = np.sum(values_array)
-        sum_values = max(sum_values, 1.0)  # Clamp to avoid zero-division
+        sum_values = np.maximum(sum_values, 1.0)  # Clamp to avoid zero-division, np.maximum for safety
         weights = values_array / sum_values  # Normalized safe
         weighted_X = X.multiply(weights.mean())  # Proxy for all cycles
         
