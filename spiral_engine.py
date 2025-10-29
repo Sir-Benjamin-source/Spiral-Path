@@ -32,6 +32,8 @@ class SpiralEngine:
             'cycle': len(self.log) + 1,
             'params': {'td': td, 'rf': rf, 'tw': tw, 'cir': cir, 'am': am, 'da': da},
             'sign': sign,
+            'base': base,
+            'adjustment': adjustment,
             'value': path_value
         })
         return path_value
@@ -69,6 +71,38 @@ class SpiralEngine:
             current_params['rf'] *= (1 + growth_rate / 2)
         return values
     
+    def simulate_spiral_with_indicators(self, params, iterations=5, sign='+', growth_rate=0.01, noise_level=0.05):
+        """
+        Multi-cycle simulation with detailed path indicators per iteration.
+        Returns values and a list of dicts with base, adjustment, value per cycle.
+        """
+        values = []
+        indicators = []
+        current_params = params.copy()
+        for i in range(iterations):
+            if noise_level > 0:
+                current_params['td'] += np.random.normal(0, noise_level * current_params['td'])
+                current_params['da'] += np.random.normal(0, noise_level * current_params['da'])
+                current_params['td'] = max(0.1, current_params['td'])
+                current_params['da'] = max(0.1, current_params['da'])
+            
+            base = (current_params['td'] / current_params['rf']) * current_params['tw'] + (current_params['cir'] * self.sc)
+            adjustment = current_params['am'] * current_params['da'] if sign == '+' else -(current_params['am'] * current_params['da'])
+            path_value = base + adjustment
+            
+            indicators.append({
+                'cycle': i + 1,
+                'base': base,
+                'adjustment': adjustment,
+                'value': path_value,
+                'params': current_params.copy()
+            })
+            values.append(path_value)
+            
+            current_params['td'] *= (1 + growth_rate)
+            current_params['rf'] *= (1 + growth_rate / 2)
+        return values, indicators
+    
     def visualize_spiral(self, values, title='Spiral Path Evolution'):
         """Optional plot of simulation values."""
         plt.figure(figsize=(8, 5))
@@ -101,6 +135,11 @@ if __name__ == "__main__":
     # Stochastic sim
     noisy_values = engine.simulate_spiral(params, iterations=5, noise_level=0.05)
     print("Stochastic Simulation Values:", noisy_values)
+    
+    # New: Simulation with indicators
+    values, indicators = engine.simulate_spiral_with_indicators(params, iterations=5, noise_level=0.05)
+    print("Simulation Values:", values)
+    print("Path Indicators (Last Cycle):", indicators[-1])
     
     # Viz the noisy one
     engine.visualize_spiral(noisy_values, title='Stochastic Spiral Path')
