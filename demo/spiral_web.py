@@ -41,7 +41,7 @@ if uploaded_file is not None:
     rf = st.sidebar.number_input("RF (Refinement Factor)", value=1.5, step=0.1)
     tw = st.sidebar.number_input("TW (Twist Weight)", value=2.0, step=0.1)
     cir = st.sidebar.number_input("CIR (Cycle Intensity Ratio)", value=1.5, step=0.1)
-    am = st.sidebar.number_input("AM (Adjustment Magnitude)", value=0.2, step=0.1)
+    am = st.sidebar.number_input("AM (Adjustment Magnitude)", value=0.1, step=0.1)
     da = st.sidebar.number_input("DA (Differentiation Angle)", value=np.pi/3, step=0.1)
     sc = st.sidebar.number_input("SC (Spiral Constant)", value=1.618, step=0.01)
     iterations = st.sidebar.slider("Iterations", 3, 10, 5)
@@ -53,6 +53,10 @@ if uploaded_file is not None:
         params = {'td': td, 'rf': rf, 'tw': tw, 'cir': cir, 'am': am, 'da': da}
         
         values, indicators = engine.simulate_spiral_with_indicators(params, iterations=iterations, sign=sign, noise_level=noise)
+        
+        # Store in session_state for sharing
+        st.session_state.values = values
+        st.session_state.indicators = indicators
         
         st.subheader("Path Indicators")
         for ind in indicators:
@@ -97,9 +101,14 @@ if uploaded_file is not None:
             mime="application/json"
         )
         st.info("Export for sharing—drop into a NB or collab with your AI pal!")
-    
-    # Narrative Tune-Up (Indented under uploaded_file)
+
+    # Narrative Tune-Up (Now in scope with session_state)
     if st.button("Elucidate Narrative"):
+        if 'values' not in st.session_state or 'indicators' not in st.session_state:
+            st.warning("Run 'Spiral Elucidate' first to generate values!")
+            st.stop()
+        
+        values = st.session_state.values
         from sklearn.feature_extraction.text import TfidfVectorizer
         from sklearn.cluster import KMeans
         
