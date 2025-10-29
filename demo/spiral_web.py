@@ -54,9 +54,9 @@ if uploaded_file is not None:
         
         values, indicators = engine.simulate_spiral_with_indicators(params, iterations=iterations, sign=sign, noise_level=noise)
         
-        # Store in session_state with unique keys
-        st.session_state['spiral_values'] = values
-        st.session_state['spiral_indicators'] = indicators
+        # Store in session_state for sharing
+        st.session_state.values = values
+        st.session_state.indicators = indicators
         
         st.subheader("Path Indicators")
         for ind in indicators:
@@ -72,60 +72,15 @@ if uploaded_file is not None:
         ax.legend()
         st.pyplot(fig)
         
-        # Dynamic Narrative Pairing
-        avg_base = np.mean([ind['base'] for ind in indicators])
-        adj_var = np.var([ind['adjustment'] for ind in indicators])
+        # Narrative Pairing (Defined here, safe scope)
         retention = 100 - (np.std(values) / np.mean(values) * 100)
         uplift = (values[-1] - values[0]) / values[0] * 100
-        
-        # Dynamic Narrative Pairing
-        avg_base = np.mean([ind['base'] for ind in indicators])
-        adj_var = np.var([ind['adjustment'] for ind in indicators])
-        retention = 100 - (np.std(values) / np.mean(values) * 100)
-        uplift = (values[-1] - values[0]) / values[0] * 100
-        
-        # 5 Standard Responses (Tune thresholds)
-        responses = {
-            'high_tension': f"Graph shows high base (avg {avg_base:.1f})—tension in dense chunks; more RF (try 1.8+) to prune blockage and release locution.",
-            'low_adjustment': f"Low adjustment variance ({adj_var:.3f}) suggests stable flow; less DA (try 1.5) to stir subtle shifts without over-exploration.",
-            'high_retention': f"Strong retention ({retention:.1f}%) holds narrative tight; more TW (try 2.5) to amplify uplift ({uplift:.1f}%) and unlock insights.",
-            'low_uplift': f"Modest uplift ({uplift:.1f}%) indicates convergent path; less noise (try 0.02) or + sign for bolder locution release.",
-            'balanced': f"Balanced spiral (retention {retention:.1f}%, uplift {uplift:.1f}%)—tune CIR up (try 2.0) to sustain flow and spot hidden information."
-        }
-        
-        # Pick response
-        if avg_base > 450:
-            response = responses['high_tension']
-        elif adj_var < 0.1:
-            response = responses['low_adjustment']
-        elif retention > 95:
-            response = responses['high_retention']
-        elif uplift < 1.0:
-            response = responses['low_uplift']
-        else:
-            response = responses['balanced']
-        
-        st.markdown(f"**Insight Summary:** {response}")
-        st.info("These tune suggestions help release blockage (stuck ideas) and spotlight locution (key phrases)—plug into an LLM for deeper riff.")
-        
-        # Pick response
-        if avg_base > 450:
-            response = responses['high_tension']
-        elif adj_var < 0.1:
-            response = responses['low_adjustment']
-        elif retention > 95:
-            response = responses['high_retention']
-        elif uplift < 1.0:
-            response = responses['low_uplift']
-        else:
-            response = responses['balanced']
-        
-        st.markdown(f"**Insight Summary:** {response}")
-        st.info("These tune suggestions help release blockage (stuck ideas) and spotlight locution (key phrases)—plug into an LLM for deeper riff.")
+        narrative = f"This document elucidates with {retention:.1f}% retention—core indicators hold steady through {iterations} cycles. Uplift of {uplift:.1f}% suggests refined insights in denser chunks. Lean {sign} for {'exploration' if sign == '+' else 'convergence'}."
+        st.markdown(f"**Insight Summary:** {narrative}")
         
         # Store retention/uplift for narrative
-        st.session_state['retention'] = retention
-        st.session_state['uplift'] = uplift
+        st.session_state.retention = retention
+        st.session_state.uplift = uplift
         
         # Provenance
         st.subheader("Provenance Log (Last Cycle)")
@@ -150,14 +105,14 @@ if uploaded_file is not None:
             mime="application/json"
         )
         st.info("Export for sharing—drop into a NB or collab with your AI pal!")
-    
+
     # Narrative Tune-Up (Scoped with session_state check)
     if st.button("Elucidate Narrative", key="narrative_elucidate"):
-        spiral_values = st.session_state.get('spiral_values', [])  # Safe get, unique key
+        values = st.session_state.get('values', [])  # Safe dict get, fallback empty list
         retention = st.session_state.get('retention', 100.0)
         uplift = st.session_state.get('uplift', 0.0)
         
-        if not spiral_values:
+        if not values:
             st.warning("Run 'Spiral Elucidate' first to generate values!")
             st.stop()
         
@@ -169,7 +124,7 @@ if uploaded_file is not None:
         X = vectorizer.fit_transform(chunks)
         
         # Weight by path values (high-value cycles boost themes)
-        values_array = np.asarray(spiral_values, dtype=np.float64)  # Force float64 array, robust
+        values_array = np.asarray(values, dtype=np.float64)  # Force float64 array, robust
         sum_values = np.sum(values_array)
         sum_values = np.maximum(sum_values, 1.0)  # Clamp to avoid zero-division
         weights = values_array / sum_values  # Normalized safe
