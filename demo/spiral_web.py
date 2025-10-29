@@ -20,22 +20,30 @@ url = st.text_input("Paste CSV URL (e.g., Kaggle direct link)")
 if st.button("Load Data"):
     if url:
         try:
-            # Robust read: Try common seps/quotes
-            for sep in [',', '\t', ';']:
-                for quote in ['"', "'"]:
-                    try:
-                        df = pd.read_csv(url, sep=sep, quotechar=quote, on_bad_lines='skip')
-                        if df.shape[0] > 0:  # Success if data loaded
-                            st.session_state.df = df
-                            st.success(f"Loaded: {df.shape[0]} rows, {df.shape[1]} columns (sep={sep}, quote={quote}). Columns: {list(df.columns)}")
-                            st.dataframe(df.head())
-                            break
-                    except:
-                        continue
-            else:
-                raise ValueError("All common formats failed—check your CSV for delimiters/quotes.")
+            # Robust read: Loop encodings, seps, quotes, headers
+            success = False
+            for encoding in ['utf-8', 'utf-8-sig', 'latin-1']:
+                for sep in [',', '\t', ';']:
+                    for quote in ['"', "'", '']:
+                        for header in [0, None]:
+                            try:
+                                df = pd.read_csv(url, sep=sep, quotechar=quote, encoding=encoding, header=header, on_bad_lines='skip')
+                                if df.shape[0] > 0:  # Loaded something
+                                    st.session_state.df = df
+                                    st.success(f"Loaded: {df.shape[0]} rows, {df.shape[1]} columns (enc={encoding}, sep={sep}, header={header}). Columns: {list(df.columns[:5])}...")
+                                    with st.expander("Preview First 5 Rows"):
+                                        st.dataframe(df.head())
+                                    success = True
+                                    break
+                            except Exception as inner_e:
+                                continue
+                        if success: break
+                    if success: break
+                if success: break
+            if not success:
+                raise ValueError("Tough nut—try a different URL or check for multi-line headers/quotes.")
         except Exception as e:
-            st.error(f"Oops—load failed: {e}. Try the Iris URL below or fix line 9 (extra comma?).")
+            st.error(f"Oops—load failed: {e}. Kaggle tip: Export as 'raw CSV' without compression.")
             st.info("Fallback: https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv")
     else:
         st.warning("Paste a URL first!")
