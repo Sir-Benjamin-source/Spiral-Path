@@ -120,7 +120,7 @@ if uploaded_file is not None:
         # Weight by path values (high-value cycles boost themes)
         values_array = np.asarray(values)  # Ensure array, robust
         sum_values = np.sum(values_array)
-        sum_values = max(sum_values, 1.0)print(f"sum_values type: {type(sum_values)}")  # Clamp to avoid zero-division
+        sum_values = max(sum_values, 1.0) print(f"sum_values type: {type(sum_values)}")  # Clamp to avoid zero-division
         weights = values_array / sum_values  # Normalized safe
         weighted_X = X.multiply(weights.mean())  # Proxy for all cycles
         
