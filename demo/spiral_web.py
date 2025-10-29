@@ -72,11 +72,56 @@ if uploaded_file is not None:
         ax.legend()
         st.pyplot(fig)
         
-        # Narrative Pairing
+        # Dynamic Narrative Pairing
+        avg_base = np.mean([ind['base'] for ind in indicators])
+        adj_var = np.var([ind['adjustment'] for ind in indicators])
         retention = 100 - (np.std(values) / np.mean(values) * 100)
         uplift = (values[-1] - values[0]) / values[0] * 100
-        narrative = f"This document elucidates with {retention:.1f}% retention—core indicators hold steady through {iterations} cycles. Uplift of {uplift:.1f}% suggests refined insights in denser chunks. Lean {sign} for {'exploration' if sign == '+' else 'convergence'}."
-        st.markdown(f"**Insight Summary:** {narrative}")
+        
+        # Dynamic Narrative Pairing
+        avg_base = np.mean([ind['base'] for ind in indicators])
+        adj_var = np.var([ind['adjustment'] for ind in indicators])
+        retention = 100 - (np.std(values) / np.mean(values) * 100)
+        uplift = (values[-1] - values[0]) / values[0] * 100
+        
+        # 5 Standard Responses (Tune thresholds)
+        responses = {
+            'high_tension': f"Graph shows high base (avg {avg_base:.1f})—tension in dense chunks; more RF (try 1.8+) to prune blockage and release locution.",
+            'low_adjustment': f"Low adjustment variance ({adj_var:.3f}) suggests stable flow; less DA (try 1.5) to stir subtle shifts without over-exploration.",
+            'high_retention': f"Strong retention ({retention:.1f}%) holds narrative tight; more TW (try 2.5) to amplify uplift ({uplift:.1f}%) and unlock insights.",
+            'low_uplift': f"Modest uplift ({uplift:.1f}%) indicates convergent path; less noise (try 0.02) or + sign for bolder locution release.",
+            'balanced': f"Balanced spiral (retention {retention:.1f}%, uplift {uplift:.1f}%)—tune CIR up (try 2.0) to sustain flow and spot hidden information."
+        }
+        
+        # Pick response
+        if avg_base > 450:
+            response = responses['high_tension']
+        elif adj_var < 0.1:
+            response = responses['low_adjustment']
+        elif retention > 95:
+            response = responses['high_retention']
+        elif uplift < 1.0:
+            response = responses['low_uplift']
+        else:
+            response = responses['balanced']
+        
+        st.markdown(f"**Insight Summary:** {response}")
+        st.info("These tune suggestions help release blockage (stuck ideas) and spotlight locution (key phrases)—plug into an LLM for deeper riff.")
+        
+        # Pick response
+        if avg_base > 450:
+            response = responses['high_tension']
+        elif adj_var < 0.1:
+            response = responses['low_adjustment']
+        elif retention > 95:
+            response = responses['high_retention']
+        elif uplift < 1.0:
+            response = responses['low_uplift']
+        else:
+            response = responses['balanced']
+        
+        st.markdown(f"**Insight Summary:** {response}")
+        st.info("These tune suggestions help release blockage (stuck ideas) and spotlight locution (key phrases)—plug into an LLM for deeper riff.")
         
         # Store retention/uplift for narrative
         st.session_state['retention'] = retention
