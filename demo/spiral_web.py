@@ -25,27 +25,33 @@ sign = st.sidebar.selectbox("Sign (±)", ['+', '-'])
 noise = st.sidebar.slider("Noise Level", 0.0, 0.1, 0.05)
 
 if st.button("Run Spiral"):
-    engine = SpiralEngine(sc=sc)
-    params = {'td': td, 'rf': rf, 'tw': tw, 'cir': cir, 'am': am, 'da': da}
-    
-    values = engine.simulate_spiral(params, iterations=iterations, sign=sign, noise_level=noise)
-    
+       # ... (after computing values and plot)
+
     st.subheader("Spiral Values")
     st.write(values)
     
-    # Plot
+    # Plot (existing)
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(values, marker='o', linewidth=2, label=f'{sign} Path')
-    ax.set_title(f'Spiral Path Evolution (Noise: {noise:.2f})')
-    ax.set_xlabel('Iteration')
-    ax.set_ylabel('Path Value')
-    ax.grid(True, alpha=0.3)
-    ax.legend()
+    # ... (your plot code)
     st.pyplot(fig)
     
     # Provenance
     st.subheader("Provenance Log (Last Cycle)")
     st.json(engine.get_provenance()[-1])
-
-st.markdown("---")
-st.write("Built with Spiral Theory—fork on GitHub, cite via Zenodo DOI: [10.5281/zenodo.16585562](https://doi.org/10.5281/zenodo.16585562). Ethical AI: Human seal encouraged.")
+    
+    # NEW: Save Spiral Export
+    export_data = {
+        'params': params,
+        'values': values,
+        'sign': sign,
+        'iterations': iterations,
+        'noise_level': noise,
+        'provenance': engine.get_provenance()[-1]
+    }
+    st.download_button(
+        label="Save Spiral (JSON)",
+        data=json.dumps(export_data, indent=2),
+        file_name=f"spiral_{int(time.time())}.json",
+        mime="application/json"
+    )
+    st.info("Export for sharing—drop into a NB or collab with your AI pal!")
