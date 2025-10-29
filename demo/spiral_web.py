@@ -2,18 +2,32 @@ import sys
 import os
 import json
 import time
-# Add repo root to path (handles subdir runs)
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 import streamlit as st
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from spiral_engine import SpiralEngine
 
-st.title("🌀 Spiral Theory Path Simulator")
-st.write("Tweak params, hit 'Run Spiral,' see the magic unfold. Ethical note: Log your runs for provenance!")
+# Path fix
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Sidebar for params
+st.title("🌀 Spiral Theory Path Simulator")
+st.write("Tweak params, load a dataset URL, hit 'Analyze Spiral'—watch numbers turn to insights. Ethical note: Log for provenance!")
+
+# Data loader section
+st.header("Load Dataset")
+url = st.text_input("Paste CSV URL (e.g., Kaggle direct link)")
+if st.button("Load Data"):
+    if url:
+        try:
+            df = pd.read_csv(url)
+            st.session_state.df = df
+            st.success(f"Loaded: {df.shape[0]} rows, {df.shape[1]} columns. Columns: {list(df.columns)}")
+            st.dataframe(df.head())
+        except Exception as e:
+            st.error(f"Oops—load failed: {e}. Try a public CSV like https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv")
+
+# Sidebar params (existing)
 st.sidebar.header("Path Parameters")
 td = st.sidebar.number_input("TD (Task Density)", value=10.0, step=0.1, format="%.2f")
 rf = st.sidebar.number_input("RF (Refinement Factor)", value=2.0, step=0.1, format="%.2f")
@@ -26,24 +40,47 @@ iterations = st.sidebar.slider("Iterations", 3, 10, 5)
 sign = st.sidebar.selectbox("Sign (±)", ['+', '-'])
 noise = st.sidebar.slider("Noise Level", 0.0, 0.1, 0.05)
 
-if st.button("Run Spiral"):
+if st.button("Analyze Spiral"):
+    if 'df' not in st.session_state:
+        st.warning("Load a dataset first—try the Iris URL above!")
+        st.stop()
+    
+    df = st.session_state.df
     engine = SpiralEngine(sc=sc)
-    params = {'td': td, 'rf': rf, 'tw': tw, 'cir': cir, 'am': am, 'da': da}
+    params = {'td': len(df), 'rf': rf, 'tw': tw, 'cir': cir, 'am': am, 'da': da}  # TD from data size
     
     values = engine.simulate_spiral(params, iterations=iterations, sign=sign, noise_level=noise)
     
     st.subheader("Spiral Values")
     st.write(values)
     
+    # Quick Data Insight (e.g., mean/std on first numeric col)
+    numeric_cols = df.select_dtypes(include=np.number).columns
+    if len(numeric_cols) > 0:
+        col = numeric_cols[0]
+        baseline_mean = df[col].mean()
+        spiral_adjust = np.mean(values) * 0.01  # Proxy tweak from path
+        st.metric("Baseline Mean", baseline_mean)
+        st.metric("Spiral-Tuned Estimate", baseline_mean + spiral_adjust)
+    
     # Plot
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.plot(values, marker='o', linewidth=2, label=f'{sign} Path')
-    ax.set_title(f'Spiral Path Evolution (Noise: {noise:.2f})')
+    ax.set_title(f'Spiral Path Evolution on {df.shape[0]} Rows (Noise: {noise:.2f})')
     ax.set_xlabel('Iteration')
     ax.set_ylabel('Path Value')
     ax.grid(True, alpha=0.3)
     ax.legend()
     st.pyplot(fig)
+    
+    # Narrative Summary ("Speak English")
+    uplift_proxy = np.std(values) / np.mean(values) * 100  # Rough "insight gain"
+    narrative = f"""
+    **Quick Insight:** Your {df.shape[0]}-row dataset spirals with a {uplift_proxy:.1f}% variability edge—suggesting {iterations} cycles refine noise into signal. 
+    Lean {sign} for {'exploration (wide hypotheses)' if sign == '+' else 'convergence (bias-tight focus)'}. 
+    Ethical nudge: Provenance logged below—human seal recommended for pubs.
+    """
+    st.markdown(narrative)
     
     # Provenance
     st.subheader("Provenance Log (Last Cycle)")
@@ -53,6 +90,7 @@ if st.button("Run Spiral"):
     export_data = {
         'params': params,
         'values': values,
+        'dataset_shape': df.shape,
         'sign': sign,
         'iterations': iterations,
         'noise_level': noise,
@@ -64,7 +102,7 @@ if st.button("Run Spiral"):
         file_name=f"spiral_{int(time.time())}.json",
         mime="application/json"
     )
-    st.info("Export for sharing—drop into a NB or collab with your AI pal!")
+    st.info("Export for sharing—load in a NB or collab with your AI pal!")
 
 st.markdown("---")
 st.write("Built with Spiral Theory—fork on GitHub, cite via Zenodo DOI: https://doi.org/10.5281/zenodo.16585562. Ethical AI: Human seal encouraged.")
