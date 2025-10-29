@@ -62,7 +62,7 @@ if uploaded_file is not None:
         fig, ax = plt.subplots(figsize=(10, 6))
         ax.plot([i['value'] for i in indicators], marker='o', linewidth=2, label=f'{sign} Path')
         ax.set_title(f"Elucidation Spiral (Noise: {noise:.2f})")
-        ax.set_xlabel('Cycle')
+        ax.set_xlabel('Iteration')
         ax.set_ylabel('Path Value')
         ax.grid(True, alpha=0.3)
         ax.legend()
@@ -97,8 +97,39 @@ if uploaded_file is not None:
             mime="application/json"
         )
         st.info("Export for sharing—drop into a NB or collab with your AI pal!")
+    
+    # Narrative Tune-Up (Indented under uploaded_file)
+    if st.button("Elucidate Narrative"):
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.cluster import KMeans
+        
+        # Vectorize chunks
+        vectorizer = TfidfVectorizer(max_features=50)
+        X = vectorizer.fit_transform(chunks)
+        
+        # Weight by path values (high-value cycles boost themes)
+        weights = np.array(values) / np.sum(values)  # Normalized
+        weighted_X = X.multiply(weights.mean())  # Proxy for all cycles
+        
+        # Cluster for themes (k=3 for simplicity)
+        kmeans = KMeans(n_clusters=3, random_state=42, n_init=10)
+        theme_labels = kmeans.fit_predict(weighted_X)
+        
+        # Top words per theme
+        feature_names = vectorizer.get_feature_names_out()
+        top_themes = {}
+        for i in range(3):
+            cluster_words = weighted_X[theme_labels == i].mean(axis=0).A1
+            top_idx = np.argsort(cluster_words)[-3:]
+            top_themes[f'Theme {i+1}'] = [feature_names[idx] for idx in top_idx]
+        
+        # Final Summation
+        core_message = f"Core theme: {', '.join(top_themes['Theme 1'])} as the arrow's foil—entropy's tyranny bent by creativity's tide."
+        impact = f"Path review impact: {retention:.1f}% retention holds the narrative steady; {uplift:.1f}% uplift sharpens the philosophical edge for deeper dives."
+        st.markdown(f"**Narrative Breakdown:** {core_message} {impact}")
+        st.json(top_themes)
+        
+        st.info("Tune RF higher for tighter themes; + sign explores, - converges.")
 
-st.markdown("---")
-st.write("Built with Spiral Theory + Elucidation—fork on GitHub, cite via Zenodo DOI: https://doi.org/10.5281/zenodo.16585562. Ethical AI: Human seal encouraged.")
 st.markdown("---")
 st.write("Built with Spiral Theory + Elucidation—fork on GitHub, cite via Zenodo DOI: https://doi.org/10.5281/zenodo.16585562. Ethical AI: Human seal encouraged.")
