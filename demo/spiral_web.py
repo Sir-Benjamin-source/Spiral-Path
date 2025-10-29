@@ -48,7 +48,7 @@ if uploaded_file is not None:
     sign = st.sidebar.selectbox("Sign (±)", ['+', '-'])
     noise = st.sidebar.slider("Noise Level", 0.0, 0.1, 0.03)
 
-    if st.button("Spiral Elucidate"):
+   if st.button("Spiral Elucidate", key="elucidate_spiral"):
         engine = SpiralEngine(sc=sc)
         params = {'td': td, 'rf': rf, 'tw': tw, 'cir': cir, 'am': am, 'da': da}
         
@@ -57,7 +57,6 @@ if uploaded_file is not None:
         # Store in session_state for sharing
         st.session_state.values = values
         st.session_state.indicators = indicators
-        
         st.subheader("Path Indicators")
         for ind in indicators:
             st.write(f"Cycle {ind['cycle']}: Base {ind['base']:.2f}, Adjustment {ind['adjustment']:.2f}, Value {ind['value']:.2f}")
@@ -103,7 +102,7 @@ if uploaded_file is not None:
         st.info("Export for sharing—drop into a NB or collab with your AI pal!")
 
     # Narrative Tune-Up (Now in scope with session_state)
-    if st.button("Elucidate Narrative"):
+if st.button("Elucidate Narrative", key="narrative_elucidate"):
         if 'values' not in st.session_state or 'indicators' not in st.session_state:
             st.warning("Run 'Spiral Elucidate' first to generate values!")
             st.stop()
