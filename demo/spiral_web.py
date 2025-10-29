@@ -108,7 +108,10 @@ if uploaded_file is not None:
             st.warning("Run 'Spiral Elucidate' first to generate values!")
             st.stop()
         
-        values = st.session_state.values  # Pull the list, not method
+        values = list(st.session_state.values or [])  # Force list, fallback empty
+        if not values:
+            st.warning("No values loaded—run Spiral Elucidate first!")
+            st.stop()
         
         from sklearn.feature_extraction.text import TfidfVectorizer
         from sklearn.cluster import KMeans
@@ -120,7 +123,7 @@ if uploaded_file is not None:
         # Weight by path values (high-value cycles boost themes)
         values_array = np.asarray(values, dtype=np.float64)  # Force float64 array, robust
         sum_values = np.sum(values_array)
-        sum_values = np.maximum(sum_values, 1.0)  # Clamp to avoid zero-division, np.maximum for safety
+        sum_values = np.maximum(sum_values, 1.0)  # Clamp to avoid zero-division
         weights = values_array / sum_values  # Normalized safe
         weighted_X = X.multiply(weights.mean())  # Proxy for all cycles
         
