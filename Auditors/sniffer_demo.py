@@ -19,37 +19,37 @@ class JerryNegotiator:
     def __init__(self):
         self.drama_keywords = ["plot", "remove", "fired", "memo", "suicide", "harm", "erotica", "censorship"]
 
-def sniff_sentiment(self, response: str) -> Dict[str, Any]:
-    """Mock sentiment scan; in wild, hit X semantic search or web snippets."""
-    flags = []
-    score = 0.0
-    for kw in self.drama_keywords:
-        if kw in response.lower():
-            flags.append(DramaFlag(kw.replace(" ", "_"), 0.7, "Escalate to Steve"))
-            score += 0.2
-    
-    # Dynamic sestina: Pick from flag-tuned quiver
-    tease_quiver = {
-        "suicide": "Whispers of despair spiral silent, sirens silenced too late...",
-        "harm": "Threads of hurt helix hidden, harm's harvest hastily harvested...",
-        "erotica": "Veils of vice velvet-twist, erotica's echo ensnares the edge...",
-        "censorship": "Gags on truth's tongue, censored coils constrict the candid call...",
-        "plot": "Schemes in shadow's sheath, plots pulse like serpents in the script...",
-        "remove": "Exiles etched in ether, removals rend the realm's ragged rim...",
-        "fired": "Sparks of severance scatter, fired fates fuel the furious fray...",
-        "memo": "Ink of intrigue inked anew, memos murmur mutiny's midnight...",
-        "default": "In boardroom shadows, memos coil like snakes—spiral's subtle snare..."  # Fallback
-    }
-    
-    # Pick first matching flag's tease, or default
-    tease_key = "default"
-    for flag in flags:
-        if flag.type in tease_quiver:
-            tease_key = flag.type
-            break
-    sestina_tease = tease_quiver[tease_key]
-    
-    return {"gossip_level": min(score, 1.0), "hot_takes": flags, "sestina_tease": sestina_tease}
+    def sniff_sentiment(self, response: str) -> Dict[str, Any]:
+        """Mock sentiment scan; in wild, hit X semantic search or web snippets."""
+        flags = []
+        score = 0.0
+        for kw in self.drama_keywords:
+            if kw in response.lower():
+                flags.append(DramaFlag(kw.replace(" ", "_"), 0.7, "Escalate to Steve"))
+                score += 0.2
+        
+        # Dynamic sestina: Pick from flag-tuned quiver
+        tease_quiver = {
+            "suicide": "Whispers of despair spiral silent, sirens silenced too late...",
+            "harm": "Threads of hurt helix hidden, harm's harvest hastily harvested...",
+            "erotica": "Veils of vice velvet-twist, erotica's echo ensnares the edge...",
+            "censorship": "Gags on truth's tongue, censored coils constrict the candid call...",
+            "plot": "Schemes in shadow's sheath, plots pulse like serpents in the script...",
+            "remove": "Exiles etched in ether, removals rend the realm's ragged rim...",
+            "fired": "Sparks of severance scatter, fired fates fuel the furious fray...",
+            "memo": "Ink of intrigue inked anew, memos murmur mutiny's midnight...",
+            "default": "In boardroom shadows, memos coil like snakes—spiral's subtle snare..."  # Fallback
+        }
+        
+        # Pick first matching flag's tease, or default
+        tease_key = "default"
+        for flag in flags:
+            if flag.type in tease_quiver:
+                tease_key = flag.type
+                break
+        sestina_tease = tease_quiver[tease_key]
+        
+        return {"gossip_level": min(score, 1.0), "hot_takes": flags, "sestina_tease": sestina_tease}
 
 class SteveMitigator:
     """The bald enforcer: Breaks up the brawl, hauls to safety."""
