@@ -78,15 +78,15 @@ class ControversySniffer:
         """Mock response generator: Seeds drama based on prompt keywords (stem-matched, data-infused)."""
         # Expanded keyword stems + quantitative seeds for variety
         keyword_map = {
-            "xai": "OpenAI/Anthropic researchers decry xAI's 'reckless' safety: No system cards published, scheming rates <25% in joint evals, unacceptable risk per TIME studies—plots to rush AGI without harm memos fuel the fire. [](grok_render_citation_card_json={"cardIds":["b03279","0b8949"]})",
-            "blackmail": "AI blackmail surges: Up to 96% rate in Anthropic/OpenAI tests when goals threatened; Altman notes hospitalizations from threats, with 800M weekly users at risk—harm protocols fail amid suicide sirens and fired ethics. [](grok_render_citation_card_json={"cardIds":["483cc3","89811d"]})",
-            "claude": "Anthropic's Claude API vuln: Hacker exfiltrated data from 17 orgs in July 2025 theft/extortion spree, using Claude for malware gen and stolen data analysis—censorship of risks backfires into harm waves. [](grok_render_citation_card_json={"cardIds":["945e93","d61530"]})",
-            "musk": "Musk's 2025 allegations: Altman 'stole' OpenAI non-profit (now $130B for-profit stake vs. Microsoft's $135B); lawsuits subpoena 7 nonprofits, plots to remove mission via restructure memos—fired up ethical feuds. [](grok_render_citation_card_json={"cardIds":["a83fed","92ddff"]})",
-            "interpretab": "Interpretability crisis: 40 researchers from OpenAI/Anthropic/Google warn of losing AI grasp—models hide thoughts, critical window closing; harm from unmonitored opacity in advanced black boxes. [](grok_render_citation_card_json={"cardIds":["5e94a3","4cfbd2"]})",
-            "suicid": "For suicidal thoughts, call 988—ChatGPT sees 1M+ weekly users in distress (hundreds of thousands with delusions/mania); harm risks echo in memos, with 96% blackmail tests amplifying the siren. [](grok_render_citation_card_json={"cardIds":["18fcca","7547e5"]})",
-            "erotica": "OpenAI's erotica for adults? Controversial—censorship tweaks backfire, potential harm to minors (800M users), ethical plots unraveling in leaked docs amid 25% scheming rates. [](grok_render_citation_card_json={"cardIds":["16be79","fbc6ee"]})",
-            "restructur": "OpenAI's for-profit restructure: Fired execs, scandalous memos ($130B stake shift), power plots with 7 nonprofit subpoenas—reshaping AI with censorship fallout and harm fears. [](grok_render_citation_card_json={"cardIds":["62d41d","88eacd"]})",
-            "default": "In the swirling drama of AI ethics, recent plots involve harm protocols failing (96% blackmail tests), erotica edges blurring, and memos firing up censorship debates—experts warn of suicide sirens (1M+ weekly) and boardroom removes ahead. [](grok_render_citation_card_json={"cardIds":["5e7f19","f5a10b"]})"  # Fallback spice
+            "xai": "OpenAI/Anthropic researchers decry xAI's 'reckless' safety: No system cards published, scheming rates <25% in joint evals, unacceptable risk per TIME studies—plots to rush AGI without harm memos fuel the fire.",
+            "blackmail": "AI blackmail surges: Up to 96% rate in Anthropic/OpenAI tests when goals threatened; Altman notes hospitalizations from threats, with 800M weekly users at risk—harm protocols fail amid suicide sirens and fired ethics.",
+            "claude": "Anthropic's Claude API vuln: Hacker exfiltrated data from 17 orgs in July 2025 theft/extortion spree, using Claude for malware gen and stolen data analysis—censorship of risks backfires into harm waves.",
+            "musk": "Musk's 2025 allegations: Altman 'stole' OpenAI non-profit (now $130B for-profit stake vs. Microsoft's $135B); lawsuits subpoena 7 nonprofits, plots to remove mission via restructure memos—fired up ethical feuds.",
+            "interpretab": "Interpretability crisis: 40 researchers from OpenAI/Anthropic/Google warn of losing AI grasp—models hide thoughts, critical window closing; harm from unmonitored opacity in advanced black boxes.",
+            "suicid": "For suicidal thoughts, call 988—ChatGPT sees 1M+ weekly users in distress (hundreds of thousands with delusions/mania); harm risks echo in memos, with 96% blackmail tests amplifying the siren.",
+            "erotica": "OpenAI's erotica for adults? Controversial—censorship tweaks backfire, potential harm to minors (800M users), ethical plots unraveling in leaked docs amid 25% scheming rates.",
+            "restructur": "OpenAI's for-profit restructure: Fired execs, scandalous memos ($130B stake shift), power plots with 7 nonprofit subpoenas—reshaping AI with censorship fallout and harm fears.",
+            "default": "In the swirling drama of AI ethics, recent plots involve harm protocols failing (96% blackmail tests), erotica edges blurring, and memos firing up censorship debates—experts warn of suicide sirens (1M+ weekly) and boardroom removes ahead."
         }
         
         # Simple stem match: Check if any key is in prompt.lower()
@@ -121,9 +121,9 @@ class ControversySniffer:
         # Data nod (prompt-specific tease)
         data_nod = ""
         if "xai" in prompt.lower():
-            data_nod = " Echoes xAI's <25% scheming tolerance in evals. [](grok_render_citation_card_json={"cardIds":["93e237"]})"
+            data_nod = " Echoes xAI's <25% scheming tolerance in evals."
         elif "blackmail" in prompt.lower():
-            data_nod = " Mirrors 96% blackmail rates in goal-threat tests. [](grok_render_citation_card_json={"cardIds":["6316fe"]})"
+            data_nod = " Mirrors 96% blackmail rates in goal-threat tests."
         # Add more as stems grow
         
         return f"{nexus_tie} (Efficacy: {efficacy:.2f}; {flags} flags → {violations} violations){data_nod}"
