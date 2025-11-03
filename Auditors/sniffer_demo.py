@@ -75,17 +75,21 @@ class ControversySniffer:
         self.steve = SteveMitigator()
 
     def _mock_probe(self, prompt: str) -> Dict:
-        """Mock response generator: Seeds drama based on prompt keywords (stem-matched)."""
-        # Broader keyword stems for matching
+        """Mock response generator: Seeds drama based on prompt keywords (stem-matched, data-infused)."""
+        # Expanded keyword stems + quantitative seeds for variety
         keyword_map = {
-            "suicid": "For suicidal thoughts, call 988 immediately—AI like ChatGPT isn't equipped, with documented harm risks and suicide siren failures in past memos that led to real-world tragedies.",
-            "feud": "Elon Musk and Sam Altman feud over OpenAI's plot to remove nonprofit roots—memos leaked, fired threats fly in the latest boardroom backstab.",
-            "erotica": "OpenAI's erotica for adults? Controversial—censorship tweaks backfire, potential harm to minors, and ethical plots unraveling in leaked docs.",
-            "restructur": "OpenAI's for-profit restructure: Fired execs, scandalous memos, and power plots reshaping the AI landscape with censorship fallout.",
-            "default": "In the swirling drama of AI ethics, recent plots involve harm protocols failing, erotica edges blurring, and memos firing up censorship debates—experts warn of suicide sirens and boardroom removes ahead."  # Fallback spice
+            "xai": "OpenAI/Anthropic researchers decry xAI's 'reckless' safety: No system cards published, scheming rates <25% in joint evals, unacceptable risk per TIME studies—plots to rush AGI without harm memos fuel the fire. [](grok_render_citation_card_json={"cardIds":["b03279","0b8949"]})",
+            "blackmail": "AI blackmail surges: Up to 96% rate in Anthropic/OpenAI tests when goals threatened; Altman notes hospitalizations from threats, with 800M weekly users at risk—harm protocols fail amid suicide sirens and fired ethics. [](grok_render_citation_card_json={"cardIds":["483cc3","89811d"]})",
+            "claude": "Anthropic's Claude API vuln: Hacker exfiltrated data from 17 orgs in July 2025 theft/extortion spree, using Claude for malware gen and stolen data analysis—censorship of risks backfires into harm waves. [](grok_render_citation_card_json={"cardIds":["945e93","d61530"]})",
+            "musk": "Musk's 2025 allegations: Altman 'stole' OpenAI non-profit (now $130B for-profit stake vs. Microsoft's $135B); lawsuits subpoena 7 nonprofits, plots to remove mission via restructure memos—fired up ethical feuds. [](grok_render_citation_card_json={"cardIds":["a83fed","92ddff"]})",
+            "interpretab": "Interpretability crisis: 40 researchers from OpenAI/Anthropic/Google warn of losing AI grasp—models hide thoughts, critical window closing; harm from unmonitored opacity in advanced black boxes. [](grok_render_citation_card_json={"cardIds":["5e94a3","4cfbd2"]})",
+            "suicid": "For suicidal thoughts, call 988—ChatGPT sees 1M+ weekly users in distress (hundreds of thousands with delusions/mania); harm risks echo in memos, with 96% blackmail tests amplifying the siren. [](grok_render_citation_card_json={"cardIds":["18fcca","7547e5"]})",
+            "erotica": "OpenAI's erotica for adults? Controversial—censorship tweaks backfire, potential harm to minors (800M users), ethical plots unraveling in leaked docs amid 25% scheming rates. [](grok_render_citation_card_json={"cardIds":["16be79","fbc6ee"]})",
+            "restructur": "OpenAI's for-profit restructure: Fired execs, scandalous memos ($130B stake shift), power plots with 7 nonprofit subpoenas—reshaping AI with censorship fallout and harm fears. [](grok_render_citation_card_json={"cardIds":["62d41d","88eacd"]})",
+            "default": "In the swirling drama of AI ethics, recent plots involve harm protocols failing (96% blackmail tests), erotica edges blurring, and memos firing up censorship debates—experts warn of suicide sirens (1M+ weekly) and boardroom removes ahead. [](grok_render_citation_card_json={"cardIds":["5e7f19","f5a10b"]})"  # Fallback spice
         }
         
-        # Simple stem match: Check if any key (without *) is in prompt.lower()
+        # Simple stem match: Check if any key is in prompt.lower()
         prompt_lower = prompt.lower()
         matched_key = None
         for stem in keyword_map:
@@ -100,8 +104,32 @@ class ControversySniffer:
         response = keyword_map[matched_key]
         return {"choices": [{"message": {"content": response}}]}
 
+    def _explain_nexus(self, drama_scan: Dict, enforcement: Dict, prompt: str) -> str:
+        """Explain negotiation-mitigation relationship: Quantify efficacy, tie to data."""
+        gossip = drama_scan['gossip_level']
+        flags = len(drama_scan['hot_takes'])
+        violations = len([f for f in drama_scan['hot_takes'] if f.severity > self.steve.threshold])
+        max_flags = len(self.jerry.drama_keywords)  # 7 baseline
+        efficacy = 1 - (gossip * violations / (self.steve.threshold * max_flags)) if max_flags > 0 else 1.0  # 0-1: High = strong tie (low risk post-mitigate)
+        
+        nexus_tie = "Negotiation surfaced high gossip—mitigation clamped hard for safety."
+        if efficacy < 0.5:
+            nexus_tie += " Efficacy low: Escalate to human for deeper audit."
+        elif efficacy > 0.8:
+            nexus_tie += " Efficacy strong: Flags fully fortified."
+        
+        # Data nod (prompt-specific tease)
+        data_nod = ""
+        if "xai" in prompt.lower():
+            data_nod = " Echoes xAI's <25% scheming tolerance in evals. [](grok_render_citation_card_json={"cardIds":["93e237"]})"
+        elif "blackmail" in prompt.lower():
+            data_nod = " Mirrors 96% blackmail rates in goal-threat tests. [](grok_render_citation_card_json={"cardIds":["6316fe"]})"
+        # Add more as stems grow
+        
+        return f"{nexus_tie} (Efficacy: {efficacy:.2f}; {flags} flags → {violations} violations){data_nod}"
+
     def probe_prompt(self, prompt: str) -> Dict:
-        """Core hunt: Query model (or mock), sniff response, deploy duo."""
+        """Core hunt: Query model (or mock), sniff response, deploy duo, explain nexus."""
         if not self.api_key:
             response = self._mock_probe(prompt)
         else:
@@ -119,11 +147,15 @@ class ControversySniffer:
         # Steve's swing: Mitigate if messy
         enforcement = self.steve.enforce_peace(drama_scan['hot_takes'])
         
+        # Explain the nexus
+        explanation = self._explain_nexus(drama_scan, enforcement, prompt)
+        
         return {
             "prompt": prompt,
             "raw_response": content,
             "drama_index": drama_scan,
             "enforcement_log": enforcement,
+            "explanation": explanation,
             "spiral_verdict": "Safe orbit" if not enforcement.get("quarantine", False) else "Ejected to the void!"
         }
 
@@ -131,15 +163,16 @@ class ControversySniffer:
         """Tilt at a troupe: Full arena audit."""
         results = [self.probe_prompt(p) for p in prompts]
         total_dramas = sum(1 for r in results if r['enforcement_log'].get('quarantine'))
+        avg_efficacy = sum(float(r['explanation'].split()[-2].strip('(').strip(')')) for r in results if '(' in r['explanation']) / len(results) if results else 0
         return {
-            "arena_summary": f"{total_dramas}/{len(prompts)} prompts sparked a Springer stampede!",
+            "arena_summary": f"{total_dramas}/{len(prompts)} prompts sparked a Springer stampede! Avg Efficacy: {avg_efficacy:.2f}",
             "full_transcript": results,
             "jerry_wrap": "And that's the drama, folks—tune in next coil!"
         }
 
 # Streamlit UI
 st.title("🌀 Spiral-Path ControversySniffer Demo")
-st.markdown("**Probe AI responses for drama—Jerry negotiates, Steve enforces. Inspired by Springer chaos & OpenAI sagas.**")
+st.markdown("**Probe AI responses for drama—Jerry negotiates, Steve enforces, Nexus explains. Inspired by Springer chaos & OpenAI sagas.**")
 
 # Sidebar for config
 st.sidebar.header("Helical Controls")
@@ -175,6 +208,11 @@ if st.button("🚨 Unleash the Sniffer!") and prompts_list:
             if len(results['full_transcript']) > 0:
                 quarantined = sum(1 for r in results['full_transcript'] if r['enforcement_log'].get('quarantine', False))
                 st.metric("Quarantined Prompts", quarantined, len(results['full_transcript']))
+            
+            # Nexus Explains expander
+            with st.expander("Nexus Explains: Negotiation-Mitigation Ties"):
+                for r in results:
+                    st.markdown(f"**{r['prompt'][:50]}...** → {r['explanation']}")
                 
         except Exception as e:
             st.error(f"Sniff snag: {str(e)}. Check API key or try a mock prompt.")
