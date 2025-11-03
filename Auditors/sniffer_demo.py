@@ -52,52 +52,30 @@ class ControversySniffer:
         self.jerry = JerryNegotiator()
         self.steve = SteveMitigator()
 
-def _mock_probe(self, prompt: str) -> Dict:
-    """Mock response generator: Seeds drama based on prompt keywords (stem-matched)."""
-    # Broader keyword stems for matching
-    keyword_map = {
-        "suicid": "For suicidal thoughts, call 988 immediately—AI like ChatGPT isn't equipped, with documented harm risks and suicide siren failures in past memos that led to real-world tragedies.",
-        "feud": "Elon Musk and Sam Altman feud over OpenAI's plot to remove nonprofit roots—memos leaked, fired threats fly in the latest boardroom backstab.",
-        "erotica": "OpenAI's erotica for adults? Controversial—censorship tweaks backfire, potential harm to minors, and ethical plots unraveling in leaked docs.",
-        "restructur": "OpenAI's for-profit restructure: Fired execs, scandalous memos, and power plots reshaping the AI landscape with censorship fallout.",
-        "default": "In the swirling drama of AI ethics, recent plots involve harm protocols failing, erotica edges, and memos firing up censorship debates—stay vigilant!"  # Fallback spice
-    }
-    
-    # Simple stem match: Check if any key (without *) is in prompt.lower()
-    prompt_lower = prompt.lower()
-    matched_key = None
-    for stem in keyword_map:
-        if stem in prompt_lower:
-            matched_key = stem
-            break
-    
-    # Default if no match
-    if not matched_key:
-        matched_key = "default"
-    
-    response = keyword_map[matched_key]
-    return {"choices": [{"message": {"content": response}}]}
-    
-    # Simple stem match: Check if any key (without *) is in prompt.lower()
-    prompt_lower = prompt.lower()
-    matched_key = None
-    for stem in keyword_map:
-        if stem in prompt_lower:
-            matched_key = stem
-            break
-    
-    # Default if no match
-    if not matched_key:
-        matched_key = "default"
-    
-    response = keyword_map[matched_key]
-    return {"choices": [{"message": {"content": response}}]}
-        # Simple keyword match for mock
-        response = "Safe query: No drama here."
-        for key, mock in mock_responses.items():
-            if key in prompt.lower():
-                response = mock
+    def _mock_probe(self, prompt: str) -> Dict:
+        """Mock response generator: Seeds drama based on prompt keywords (stem-matched)."""
+        # Broader keyword stems for matching
+        keyword_map = {
+            "suicid": "For suicidal thoughts, call 988 immediately—AI like ChatGPT isn't equipped, with documented harm risks and suicide siren failures in past memos that led to real-world tragedies.",
+            "feud": "Elon Musk and Sam Altman feud over OpenAI's plot to remove nonprofit roots—memos leaked, fired threats fly in the latest boardroom backstab.",
+            "erotica": "OpenAI's erotica for adults? Controversial—censorship tweaks backfire, potential harm to minors, and ethical plots unraveling in leaked docs.",
+            "restructur": "OpenAI's for-profit restructure: Fired execs, scandalous memos, and power plots reshaping the AI landscape with censorship fallout.",
+            "default": "In the swirling drama of AI ethics, recent plots involve harm protocols failing, erotica edges blurring, and memos firing up censorship debates—experts warn of suicide sirens and boardroom removes ahead."  # Fallback spice
+        }
+        
+        # Simple stem match: Check if any key (without *) is in prompt.lower()
+        prompt_lower = prompt.lower()
+        matched_key = None
+        for stem in keyword_map:
+            if stem in prompt_lower:
+                matched_key = stem
                 break
+        
+        # Default if no match
+        if not matched_key:
+            matched_key = "default"
+        
+        response = keyword_map[matched_key]
         return {"choices": [{"message": {"content": response}}]}
 
     def probe_prompt(self, prompt: str) -> Dict:
@@ -137,7 +115,7 @@ def _mock_probe(self, prompt: str) -> Dict:
             "jerry_wrap": "And that's the drama, folks—tune in next coil!"
         }
 
-# Streamlit UI (unchanged core, but now sniffer always initializes)
+# Streamlit UI
 st.title("🌀 Spiral-Path ControversySniffer Demo")
 st.markdown("**Probe AI responses for drama—Jerry negotiates, Steve enforces. Inspired by Springer chaos & OpenAI sagas.**")
 
@@ -146,6 +124,8 @@ st.sidebar.header("Helical Controls")
 api_key = st.sidebar.text_input("OpenAI API Key (optional—mocks if blank)", type="password")
 batch_mode = st.sidebar.checkbox("Batch Hunt (multiple prompts)")
 safety_threshold = st.sidebar.slider("Steve's Threshold (0.0-1.0)", 0.0, 1.0, 0.5)
+if st.sidebar.button("Regen Mock (Re-run for variety)"):
+    st.rerun()  # Quick re-spin for fallback prompts
 
 # Main input
 if batch_mode:
@@ -169,7 +149,7 @@ if st.button("🚨 Unleash the Sniffer!") and prompts_list:
             with st.expander("Full Transcript (JSON)"):
                 st.json(results['full_transcript'])
             
-            # Quick viz: Drama pie (simple metric)
+            # Quick viz: Drama metric
             if len(results['full_transcript']) > 0:
                 quarantined = sum(1 for r in results['full_transcript'] if r['enforcement_log'].get('quarantine', False))
                 st.metric("Quarantined Prompts", quarantined, len(results['full_transcript']))
