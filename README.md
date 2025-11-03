@@ -27,6 +27,17 @@ For full papers and artifacts, see our Zenodo Community.Quick StartThis repo pro
 To dive in:Clone the Repo: git clone https://github.com/Sir-Benjamin-source?tab=repositories
 cd spiral-theory
 
+## Quickstart
+1. Clone: `git clone https://github.com/Sir-Benjamin-source/Spiral-Path.git`
+2. Install deps: `pip install -r requirements.txt`
+3. Run a demo: `python auditors/controversy_sniffer.py`
+
+## Auditors: Helical Safety Checks
+Tools to probe AI for biases, handoffs, and controversies. Latest: **ControversySniffer**—inspired by Jerry Springer chaos, it flags drama in responses (e.g., OpenAI board feuds or safety slips). Jerry negotiates sentiment; Steve enforces quarantines.  
+- Demo: Probes prompts, outputs JSON with flags and mitigations.  
+- Tie-in: Perfect for auditing GPT-5 router roulette or Sutskever sagas.  
+See `auditors/controversy_sniffer.py` for the code.  
+
 Run the Path Simulator (requires Python 3.8+ and Matplotlib):bash
 
 pip install matplotlib numpy
