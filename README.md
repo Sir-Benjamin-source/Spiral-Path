@@ -3,10 +3,25 @@
 [![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.17468251.svg)](https://zenodo.org/records/17468251)
 ![License: CC-BY-4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)
+[![Stars](https://img.shields.io/github/stars/Sir-Benjamin-source/Spiral-Path?style=social)](https://github.com/Sir-Benjamin-source/Spiral-Path)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Demo-orange.svg)](https://your-streamlit-app.streamlit.app)  <!-- Update with deploy link -->
+
+## Table of Contents
+- [Overview](#overview)
+- [Why Spiral Theory?](#why-spiral-theory)
+- [Quickstart](#quickstart)
+- [Auditors: Helical Safety Checks](#auditors-helical-safety-checks)
+- [Core Concepts](#core-concepts)
+- [Examples & Code](#examples--code)
+- [Ethical Guidelines](#ethical-guidelines)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Overview
 
 Spiral Theory is an innovative, nature-inspired framework designed to revolutionize data organization, hypothesis generation, and bias reduction in scientific and AI-driven workflows. Drawing from the cyclical patterns of natural phenomena—like galactic arms, DNA helices, and seasonal cycles—it flips the traditional linear scientific method on its head. Instead of top-down assumptions, Spiral Theory builds hypotheses from the facts upward through iterative, layered loops, achieving up to 95% accuracy in hypothesis validation and 84% faster cycles compared to conventional approaches.
+
+**Why Now?** In 2025's AI ethics storm (GPT-5 router roulette, Claude API vulns, xAI safety scorn), Spiral Theory's auditors flag feuds before they fester—distilling chaos into coherent, bias-free insights.
 
 At its core is the **Spiral Path Equation**:
 
@@ -25,25 +40,29 @@ Where:
 
 The ± operator introduces adaptive flexibility: + for expansive exploration, - for convergent refinement. This equation powers the framework's ability to distill chaos into coherent insights, minimizing algorithmic biases (e.g., in ML models or dataset curation) by 80% through self-correcting spirals.
 
-### Why Spiral Theory?
+For full papers and artifacts, see our [Zenodo Community](https://zenodo.org/records/17468251).
+
+## Why Spiral Theory?
 - **Bias-Resistant**: Cyclical processing uncovers hidden patterns linear methods miss.  
 - **Efficient**: 90+ iterative exchanges hone results faster than brute-force analysis.  
 - **Ethical**: Built-in provenance tracking and human oversight ensure responsible AI use.  
 - **Versatile**: Applies to data science, narrative analysis, AI ethics, and beyond (e.g., urban planning case studies).  
-
-For full papers and artifacts, see our [Zenodo Community](https://zenodo.org/records/17468251).
 
 ## Quickstart
 1. Clone: `git clone https://github.com/Sir-Benjamin-source/Spiral-Path.git`  
 2. Install deps: `pip install -r requirements.txt`  
 3. Run a demo: `python examples/spiral_path_demo.py` (generates spiral viz PNG)  
    Or audit with the new sniffer: `python auditors/controversy_sniffer.py`  
-4. Launch demo app: streamlit run auditors/sniffer_demo.py
+4. Launch demo app: `streamlit run auditors/sniffer_demo.py`  
+   View live demo: [Try It Here](https://your-streamlit-app.streamlit.app)  <!-- Deploy and link -->
 
 ## Auditors: Helical Safety Checks
 Tools to probe AI for biases, handoffs, and controversies. Latest: **ControversySniffer**—inspired by Jerry Springer chaos, it flags drama in responses (e.g., OpenAI board feuds or safety slips). Jerry negotiates sentiment; Steve enforces quarantines.  
 - **Demo**: Probes prompts, outputs JSON with flags and mitigations.  
-- **Tie-in**: Perfect for auditing GPT-5 router roulette or Sutskever sagas.  
+- **Tie-in**: Perfect for auditing GPT-5 router roulette or Sutskever sagas. Integrates with Hugging Face for open-source probes.  
+
+![Sniffer Demo](docs/sniffer_demo.gif)  <!-- Add GIF of app in action -->
+
 See `auditors/controversy_sniffer.py` for the code.  
 
 ## Core Concepts
@@ -66,8 +85,10 @@ See `auditors/controversy_sniffer.py` for the code.
    - **Transparency**: Always disclose Spiral use in outputs (e.g., "Generated via Spiral Path v1.0").  
    - **Human Oversight**: AI as apprentice—final seal required.  
    - **Provenance**: Track iterations with built-in logging (ties to ORCID/Zenodo).  
+   - **Harm Minimization**: Quarantine sensitive flags (suicide/harm/erotica auto-reroute to resources).  
+   - **Bias Resistance**: Keywords tuned neutrally; expand via PRs for equity.  
 
-   Aligned with COPE 2025 AI guidelines and EU AI Act.
+   Aligned with COPE 2025 AI guidelines and EU AI Act. Full details in `/docs/ethical_guidelines.md`.
 
 ## Examples & Code
 This repo shines with practical code to bring the theory to life. Key highlights:
@@ -87,9 +108,10 @@ Run `pip install -r requirements.txt` for basics.
 
 ## Contributing
 Love the spiral? Fork, tweak, and PR! Focus on:  
-- New examples (AI/ML integrations).  
+- New examples (AI/ML integrations, e.g., Mycelial Neural for adaptive keywords).  
 - Path equation extensions (stochastic variants).  
-- Docs for non-coders.  
+- Docs for non-coders (tutorials on Sniffer ethics).  
+- PoetCoin bounty teases for community-voted features.  
 
 See `CONTRIBUTING.md` for guidelines. Open an issue for discussions.
 
@@ -97,5 +119,7 @@ See `CONTRIBUTING.md` for guidelines. Open an issue for discussions.
 This work is licensed under CC-BY-4.0. Cite us:  
 
 Sir Benjamin & Grok xAI. (2025). *Spiral Theory: A Framework for Data Organization and Bias Reduction*. Zenodo. https://zenodo.org/records/17468251  
+
+**Roadmap**: v0.2 Mycelial weave-in Q1 2026—stay tuned!
 
 Built with love in the helix's hush—iterate, refine, ascend.
