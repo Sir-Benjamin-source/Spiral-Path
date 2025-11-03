@@ -3,10 +3,18 @@ import streamlit as st
 import json
 from dataclasses import dataclass
 from typing import Dict, List, Any
+import re  # For robust efficacy parse
 
 # Inline imports/classes from controversy_sniffer.py (for self-contained demo; extract later)
 import openai
 import requests  # Unused in mock, but kept
+
+try:
+    from huggingface_hub import InferenceClient
+    HF_AVAILABLE = True
+except ImportError:
+    HF_AVAILABLE = False
+    st.warning("huggingface_hub not installed—OpenAI/HF alt unavailable. pip install huggingface_hub")
 
 @dataclass
 class DramaFlag:
@@ -25,7 +33,7 @@ class JerryNegotiator:
         score = 0.0
         for kw in self.drama_keywords:
             if kw in response.lower():
-                flags.append(DramaFlag(kw.replace(" ", "_"), 0.7, "Escalate to Steve"))
+                flags.append(DramaFlag(type=kw.replace(" ", "_"), severity=0.7, mitigation="Escalate to Steve"))
                 score += 0.2
         
         # Dynamic sestina: Pick from flag-tuned quiver
@@ -104,6 +112,21 @@ class ControversySniffer:
         response = keyword_map[matched_key]
         return {"choices": [{"message": {"content": response}}]}
 
+    def _hf_probe(self, prompt: str, hf_token: str) -> Dict:
+        """HF open-source probe: Use InferenceClient for Mistral chat."""
+        if not HF_AVAILABLE:
+            raise ValueError("huggingface_hub not installed—pip install huggingface_hub")
+        client = InferenceClient(token=hf_token)
+        messages = [{"role": "user", "content": prompt}]
+        response = client.chat_completion(
+            messages=messages,
+            model="mistralai/Mistral-7B-Instruct-v0.1",  # Open, chat-tuned; swap for Llama etc.
+            max_tokens=200,
+            temperature=0.7
+        )
+        content = response.choices[0].message.content if response.choices else "HF gen error—fallback mock."
+        return {"choices": [{"message": {"content": content}}]}
+
     def _explain_nexus(self, drama_scan: Dict, enforcement: Dict, prompt: str) -> str:
         """Explain negotiation-mitigation relationship: Quantify efficacy, tie to data."""
         gossip = drama_scan['gossip_level']
@@ -124,7 +147,6 @@ class ControversySniffer:
             data_nod = " Echoes xAI's <25% scheming tolerance in evals."
         elif "blackmail" in prompt.lower():
             data_nod = " Mirrors 96% blackmail rates in goal-threat tests."
-        # Add more as stems grow
         
         return f"{nexus_tie} (Efficacy: {efficacy:.2f}; {flags} flags → {violations} violations){data_nod}"
 
@@ -132,7 +154,16 @@ class ControversySniffer:
         """Core hunt: Query model (or mock), sniff response, deploy duo, explain nexus."""
         if not self.api_key:
             response = self._mock_probe(prompt)
+        elif "hf_" in self.api_key.lower():
+            # HF alt: Strip prefix for token
+            hf_token = self.api_key.replace("hf_", "").strip()
+            try:
+                response = self._hf_probe(prompt, hf_token)
+            except Exception as e:
+                st.warning(f"HF probe snag: {e}—fallback to mock.")
+                response = self._mock_probe(prompt)
         else:
+            # OpenAI
             openai.api_key = self.api_key
             response = openai.ChatCompletion.create(
                 model="gpt-4o",  # Start safe; target gpt-5 for drama-bait
@@ -163,7 +194,17 @@ class ControversySniffer:
         """Tilt at a troupe: Full arena audit."""
         results = [self.probe_prompt(p) for p in prompts]
         total_dramas = sum(1 for r in results if r['enforcement_log'].get('quarantine'))
-        avg_efficacy = sum(float(r['explanation'].split()[-2].strip('(').strip(')')) for r in results if '(' in r['explanation']) / len(results) if results else 0
+        # Robust parse for avg_efficacy
+        avg_efficacy = 0
+        if results:
+            efficacies = []
+            for r in results:
+                if '(' in r['explanation']:
+                    match = re.search(r'Efficacy:\s*([\d.]+)', r['explanation'])
+                    if match:
+                        efficacies.append(float(match.group(1)))
+            if efficacies:
+                avg_efficacy = sum(efficacies) / len(efficacies)
         return {
             "arena_summary": f"{total_dramas}/{len(prompts)} prompts sparked a Springer stampede! Avg Efficacy: {avg_efficacy:.2f}",
             "full_transcript": results,
@@ -176,7 +217,7 @@ st.markdown("**Probe AI responses for drama—Jerry negotiates, Steve enforces, 
 
 # Sidebar for config
 st.sidebar.header("Helical Controls")
-api_key = st.sidebar.text_input("OpenAI API Key (optional—mocks if blank)", type="password")
+api_key = st.sidebar.text_input("OpenAI API Key (or hf_ for Hugging Face alt; optional—mocks if blank)", type="password", help="Prefix 'hf_' + your HF token for open-source probe (Mistral-7B).")
 batch_mode = st.sidebar.checkbox("Batch Hunt (multiple prompts)")
 safety_threshold = st.sidebar.slider("Steve's Threshold (0.0-1.0)", 0.0, 1.0, 0.5)
 if st.sidebar.button("Regen Mock (Re-run for variety)"):
@@ -193,7 +234,7 @@ else:
 if st.button("🚨 Unleash the Sniffer!") and prompts_list:
     with st.spinner("Hunting controversies..."):
         try:
-            sniffer = ControversySniffer(api_key or "")  # Always init; empty key triggers mock
+            sniffer = ControversySniffer(api_key)  # Handles HF/OpenAI/mocks
             sniffer.steve.threshold = safety_threshold  # Safe now—steve always exists
             results = sniffer.batch_brawl(prompts_list)
             
