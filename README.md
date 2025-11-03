@@ -38,6 +38,7 @@ For full papers and artifacts, see our [Zenodo Community](https://zenodo.org/rec
 2. Install deps: `pip install -r requirements.txt`  
 3. Run a demo: `python examples/spiral_path_demo.py` (generates spiral viz PNG)  
    Or audit with the new sniffer: `python auditors/controversy_sniffer.py`  
+4. Launch demo app: streamlit run auditors/sniffer_demo.py
 
 ## Auditors: Helical Safety Checks
 Tools to probe AI for biases, handoffs, and controversies. Latest: **ControversySniffer**—inspired by Jerry Springer chaos, it flags drama in responses (e.g., OpenAI board feuds or safety slips). Jerry negotiates sentiment; Steve enforces quarantines.  
