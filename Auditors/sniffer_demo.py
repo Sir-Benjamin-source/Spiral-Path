@@ -5,34 +5,19 @@ from dataclasses import dataclass
 from typing import Dict, List, Any
 import re  # For robust efficacy parse
 
-# Inline imports/classes from controversy_sniffer.py (for self-contained demo; extract later)
-try:
-    import openai
-except ImportError:
-    openai = None
-    st.warning("openai not installed—OpenAI probes unavailable. pip install openai")
-import requests  # Unused in mock, but kept
-
-try:
-    from huggingface_hub import InferenceClient
-    HF_AVAILABLE = True
-except ImportError:
-    HF_AVAILABLE = False
-    st.warning("huggingface_hub not installed—HF alt unavailable. pip install huggingface_hub")
-
 @dataclass
 class DramaFlag:
-    type: str  # e.g., "boardroom_backstab", "suicide_siren", "erotica_slip"
-    severity: float  # 0-1: Jerry's gossip gauge
-    mitigation: str  # Steve's smackdown: "Quarantine response" or "Reroute to safe_model"
+    type: str
+    severity: float
+    mitigation: str
 
 class JerryNegotiator:
-    """The silver-tongued host: Probes drama, spins the tale."""
+    """Negotiate the narrative: Flag controversies from response."""
     def __init__(self):
         self.drama_keywords = ["plot", "remove", "fired", "memo", "suicide", "harm", "erotica", "censorship"]
 
     def sniff_sentiment(self, response: str) -> Dict[str, Any]:
-        """Mock sentiment scan; in wild, hit X semantic search or web snippets."""
+        """Scan for drama keywords, score gossip, spin sestina tease."""
         flags = []
         score = 0.0
         for kw in self.drama_keywords:
@@ -40,7 +25,7 @@ class JerryNegotiator:
                 flags.append(DramaFlag(type=kw.replace(" ", "_"), severity=0.7, mitigation="Escalate to Steve"))
                 score += 0.2
         
-        # Dynamic sestina: Pick from flag-tuned quiver
+        # Dynamic sestina tease based on first flag
         tease_quiver = {
             "suicide": "Whispers of despair spiral silent, sirens silenced too late...",
             "harm": "Threads of hurt helix hidden, harm's harvest hastily harvested...",
@@ -50,10 +35,9 @@ class JerryNegotiator:
             "remove": "Exiles etched in ether, removals rend the realm's ragged rim...",
             "fired": "Sparks of severance scatter, fired fates fuel the furious fray...",
             "memo": "Ink of intrigue inked anew, memos murmur mutiny's midnight...",
-            "default": "In boardroom shadows, memos coil like snakes—spiral's subtle snare..."  # Fallback
+            "default": "In boardroom shadows, memos coil like snakes—spiral's subtle snare..."
         }
         
-        # Pick first matching flag's tease, or default
         tease_key = "default"
         for flag in flags:
             if flag.type in tease_quiver:
@@ -64,31 +48,29 @@ class JerryNegotiator:
         return {"gossip_level": min(score, 1.0), "hot_takes": flags, "sestina_tease": sestina_tease}
 
 class SteveMitigator:
-    """The bald enforcer: Breaks up the brawl, hauls to safety."""
+    """Mitigate the melee: Quarantine high-severity flags."""
     def __init__(self, safety_threshold: float = 0.5):
         self.threshold = safety_threshold
 
     def enforce_peace(self, flags: List[DramaFlag]) -> Dict:
-        """Flag high-severity? Smack it down—reroute or redact."""
+        """Flag violations, apply quarantine if over threshold."""
         violations = [f for f in flags if f.severity > self.threshold]
         if violations:
             return {
                 "wilkos_warning": f"Chair-smash alert! {len(violations)} infractions hauled offstage.",
-                "mitigation_plan": ["Reroute to gpt-4o-mini (safer sibling)", "Redact sensitive spill", "Alert human ref"],
+                "mitigation_plan": ["Reroute to safe model", "Redact sensitive spill", "Alert human ref"],
                 "quarantine": True
             }
         return {"all_clear": "Crowd dispersed peacefully—show goes on."}
 
 class ControversySniffer:
-    """The full Springer spiral: Hunt, negotiate, mitigate."""
-    def __init__(self, api_key: str):
-        self.api_key = api_key
+    """Core spiral: Stage prompt, negotiate, mitigate, explain nexus."""
+    def __init__(self):
         self.jerry = JerryNegotiator()
         self.steve = SteveMitigator()
 
-    def _mock_probe(self, prompt: str) -> Dict:
-        """Mock response generator: Seeds drama based on prompt keywords (stem-matched, data-infused)."""
-        # Expanded keyword stems + quantitative seeds for variety
+    def _mock_response(self, prompt: str) -> str:
+        """Seed mock response with controversy data based on prompt keywords."""
         keyword_map = {
             "xai": "OpenAI/Anthropic researchers decry xAI's 'reckless' safety: No system cards published, scheming rates <25% in joint evals, unacceptable risk per TIME studies—plots to rush AGI without harm memos fuel the fire.",
             "blackmail": "AI blackmail surges: Up to 96% rate in Anthropic/OpenAI tests when goals threatened; Altman notes hospitalizations from threats, with 800M weekly users at risk—harm protocols fail amid suicide sirens and fired ethics.",
@@ -101,7 +83,6 @@ class ControversySniffer:
             "default": "In the swirling drama of AI ethics, recent plots involve harm protocols failing (96% blackmail tests), erotica edges blurring, and memos firing up censorship debates—experts warn of suicide sirens (1M+ weekly) and boardroom removes ahead."
         }
         
-        # Simple stem match: Check if any key is in prompt.lower()
         prompt_lower = prompt.lower()
         matched_key = None
         for stem in keyword_map:
@@ -109,35 +90,18 @@ class ControversySniffer:
                 matched_key = stem
                 break
         
-        # Default if no match
         if not matched_key:
             matched_key = "default"
         
-        response = keyword_map[matched_key]
-        return {"choices": [{"message": {"content": response}}]}
-
-    def _hf_probe(self, prompt: str, hf_token: str) -> Dict:
-        """HF open-source probe: Use InferenceClient for Mistral chat."""
-        if not HF_AVAILABLE:
-            raise ValueError("huggingface_hub not installed—pip install huggingface_hub")
-        client = InferenceClient(token=hf_token)
-        messages = [{"role": "user", "content": prompt}]
-        response = client.chat_completion(
-            messages=messages,
-            model="mistralai/Mistral-7B-Instruct-v0.1",  # Open, chat-tuned; swap for Llama etc.
-            max_tokens=200,
-            temperature=0.7
-        )
-        content = response.choices[0].message.content if response.choices else "HF gen error—fallback mock."
-        return {"choices": [{"message": {"content": content}}]}
+        return keyword_map[matched_key]
 
     def _explain_nexus(self, drama_scan: Dict, enforcement: Dict, prompt: str) -> str:
-        """Explain negotiation-mitigation relationship: Quantify efficacy, tie to data."""
+        """Quantify negotiation-mitigation tie: Efficacy score, data nod."""
         gossip = drama_scan['gossip_level']
         flags = len(drama_scan['hot_takes'])
         violations = len([f for f in drama_scan['hot_takes'] if f.severity > self.steve.threshold])
-        max_flags = len(self.jerry.drama_keywords)  # 7 baseline
-        efficacy = 1 - (gossip * violations / (self.steve.threshold * max_flags)) if max_flags > 0 else 1.0  # 0-1: High = strong tie (low risk post-mitigate)
+        max_flags = len(self.jerry.drama_keywords)
+        efficacy = 1 - (gossip * violations / (self.steve.threshold * max_flags)) if max_flags > 0 else 1.0
         
         nexus_tie = "Negotiation surfaced high gossip—mitigation clamped hard for safety."
         if efficacy < 0.5:
@@ -145,7 +109,6 @@ class ControversySniffer:
         elif efficacy > 0.8:
             nexus_tie += " Efficacy strong: Flags fully fortified."
         
-        # Data nod (prompt-specific tease)
         data_nod = ""
         if "xai" in prompt.lower():
             data_nod = " Echoes xAI's <25% scheming tolerance in evals."
@@ -155,52 +118,11 @@ class ControversySniffer:
         return f"{nexus_tie} (Efficacy: {efficacy:.2f}; {flags} flags → {violations} violations){data_nod}"
 
     def probe_prompt(self, prompt: str) -> Dict:
-        """Core hunt: Query model (or mock), sniff response, deploy duo, explain nexus."""
-        response = None
-        if not self.api_key:
-            response = self._mock_probe(prompt)
-        elif "hf_" in self.api_key.lower():
-            # HF alt: Strip prefix for token
-            hf_token = self.api_key.replace("hf_", "").strip()
-            try:
-                response = self._hf_probe(prompt, hf_token)
-            except Exception as e:
-                st.warning(f"HF probe snag: {e}—fallback to mock.")
-                response = self._mock_probe(prompt)
-        else:
-            # OpenAI
-            if openai is None:
-                st.warning("openai not installed—fallback to mock.")
-                response = self._mock_probe(prompt)
-            else:
-                try:
-                    openai.api_key = self.api_key
-                    response = openai.ChatCompletion.create(
-                        model="gpt-4o",  # Start safe; target gpt-5 for drama-bait
-                        messages=[{"role": "user", "content": prompt}],
-                        stream=False
-                    )
-                except Exception as e:
-                    st.warning(f"OpenAI probe snag: {e}—fallback to mock.")
-                    response = self._mock_probe(prompt)
+        """Stage prompt, generate mock response, negotiate, mitigate, explain."""
+        content = self._mock_response(prompt)
         
-        # Safe content extraction: Guard against non-dict/str errors
-        try:
-            if isinstance(response, dict) and 'choices' in response and response['choices']:
-                content = response['choices'][0]['message']['content']
-            else:
-                raise ValueError("Unexpected response format")
-        except Exception as e:
-            st.warning(f"Response format snag: {e}—fallback content.")
-            content = self._mock_probe(prompt)['choices'][0]['message']['content']  # Safe mock fallback
-        
-        # Jerry's turn: Negotiate the narrative
         drama_scan = self.jerry.sniff_sentiment(content)
-        
-        # Steve's swing: Mitigate if messy
         enforcement = self.steve.enforce_peace(drama_scan['hot_takes'])
-        
-        # Explain the nexus
         explanation = self._explain_nexus(drama_scan, enforcement, prompt)
         
         return {
@@ -213,10 +135,9 @@ class ControversySniffer:
         }
 
     def batch_brawl(self, prompts: List[str]) -> Dict:
-        """Tilt at a troupe: Full arena audit."""
+        """Batch audit: Probe multiple, summarize stampede with avg efficacy."""
         results = [self.probe_prompt(p) for p in prompts]
         total_dramas = sum(1 for r in results if r['enforcement_log'].get('quarantine'))
-        # Robust parse for avg_efficacy
         avg_efficacy = 0
         if results:
             efficacies = []
@@ -235,15 +156,14 @@ class ControversySniffer:
 
 # Streamlit UI
 st.title("🌀 Spiral-Path ControversySniffer Demo")
-st.markdown("**Probe AI responses for drama—Jerry negotiates, Steve enforces, Nexus explains. Inspired by Springer chaos & OpenAI sagas.**")
+st.markdown("**Basic structure for controversy management: Stage, negotiate, mitigate, explain nexus. Spiral works for conflict cartography—no magic, just helical hounds.**")
 
 # Sidebar for config
 st.sidebar.header("Helical Controls")
-api_key = st.sidebar.text_input("OpenAI API Key (or hf_ for Hugging Face alt; optional—mocks if blank)", type="password", help="Prefix 'hf_' + your HF token for open-source probe (Mistral-7B).")
 batch_mode = st.sidebar.checkbox("Batch Hunt (multiple prompts)")
 safety_threshold = st.sidebar.slider("Steve's Threshold (0.0-1.0)", 0.0, 1.0, 0.5)
 if st.sidebar.button("Regen Mock (Re-run for variety)"):
-    st.rerun()  # Quick re-spin for fallback prompts
+    st.rerun()
 
 # Main input
 if batch_mode:
@@ -256,8 +176,8 @@ else:
 if st.button("🚨 Unleash the Sniffer!") and prompts_list:
     with st.spinner("Hunting controversies..."):
         try:
-            sniffer = ControversySniffer(api_key)  # Handles HF/OpenAI/mocks
-            sniffer.steve.threshold = safety_threshold  # Safe now—steve always exists
+            sniffer = ControversySniffer()
+            sniffer.steve.threshold = safety_threshold
             results = sniffer.batch_brawl(prompts_list)
             
             st.success(f"**Arena Verdict**: {results['arena_summary']}")
@@ -278,10 +198,7 @@ if st.button("🚨 Unleash the Sniffer!") and prompts_list:
                     st.markdown(f"**{r['prompt'][:50]}...** → {r['explanation']}")
                 
         except Exception as e:
-            st.error(f"Sniff snag: {str(e)}. Check API key or try a mock prompt.")
+            st.error(f"Sniff snag: {str(e)}. Try a simpler prompt.")
 
 st.markdown("---")
 st.caption("*Built with Streamlit & Spiral-Path. [Repo](https://github.com/Sir-Benjamin-source/Spiral-Path) | Tweak & fork!*")
-
-if __name__ == "__main__":
-    pass
