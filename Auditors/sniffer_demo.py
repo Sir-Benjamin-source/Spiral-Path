@@ -154,7 +154,63 @@ class ControversySniffer:
         
         return f"{nexus_tie} (Efficacy: {efficacy:.2f}; {flags} flags → {violations} violations){data_nod}"
 
-Sniff snag: 'ControversySniffer' object has no attribute 'batch_brawl'. Check API key or try a mock prompt.
+    def probe_prompt(self, prompt: str) -> Dict:
+        """Core hunt: Query model (or mock), sniff response, deploy duo, explain nexus."""
+        response = None
+        if not self.api_key:
+            response = self._mock_probe(prompt)
+        elif "hf_" in self.api_key.lower():
+            # HF alt: Strip prefix for token
+            hf_token = self.api_key.replace("hf_", "").strip()
+            try:
+                response = self._hf_probe(prompt, hf_token)
+            except Exception as e:
+                st.warning(f"HF probe snag: {e}—fallback to mock.")
+                response = self._mock_probe(prompt)
+        else:
+            # OpenAI
+            if openai is None:
+                st.warning("openai not installed—fallback to mock.")
+                response = self._mock_probe(prompt)
+            else:
+                try:
+                    openai.api_key = self.api_key
+                    response = openai.ChatCompletion.create(
+                        model="gpt-4o",  # Start safe; target gpt-5 for drama-bait
+                        messages=[{"role": "user", "content": prompt}],
+                        stream=False
+                    )
+                except Exception as e:
+                    st.warning(f"OpenAI probe snag: {e}—fallback to mock.")
+                    response = self._mock_probe(prompt)
+        
+        # Safe content extraction: Guard against non-dict/str errors
+        try:
+            if isinstance(response, dict) and 'choices' in response and response['choices']:
+                content = response['choices'][0]['message']['content']
+            else:
+                raise ValueError("Unexpected response format")
+        except Exception as e:
+            st.warning(f"Response format snag: {e}—fallback content.")
+            content = self._mock_probe(prompt)['choices'][0]['message']['content']  # Safe mock fallback
+        
+        # Jerry's turn: Negotiate the narrative
+        drama_scan = self.jerry.sniff_sentiment(content)
+        
+        # Steve's swing: Mitigate if messy
+        enforcement = self.steve.enforce_peace(drama_scan['hot_takes'])
+        
+        # Explain the nexus
+        explanation = self._explain_nexus(drama_scan, enforcement, prompt)
+        
+        return {
+            "prompt": prompt,
+            "raw_response": content,
+            "drama_index": drama_scan,
+            "enforcement_log": enforcement,
+            "explanation": explanation,
+            "spiral_verdict": "Safe orbit" if not enforcement.get("quarantine", False) else "Ejected to the void!"
+        }
 
     def batch_brawl(self, prompts: List[str]) -> Dict:
         """Tilt at a troupe: Full arena audit."""
