@@ -1,6 +1,41 @@
 import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt  # For optional viz
+# In the "Unleash" block, after res = ...
+col1, col2 = st.columns(2)
+with col1:
+    fig1, ax1 = plt.subplots(figsize=(8, 5))
+    line_pe, = ax1.plot([], [], label='P_single_e(t)', color='blue', lw=2)
+    if num_atoms == 2:
+        line_pee, = ax1.plot([], [], label='P_ee(t)', color='green', lw=2)
+    ax1.set_xlim(0, T); ax1.set_ylim(0, 1.1)
+    ax1.set_ylabel('Excitation Prob'); ax1.set_xlabel('Time t')
+    ax1.legend(); ax1.grid(alpha=0.3)
+    
+    def animate_exc(i):
+        line_pe.set_data(res['tlist'][:i], res['P_single_e'][:i])
+        if num_atoms == 2:
+            line_pee.set_data(res['tlist'][:i], res['P_ee'][:i])
+        return line_pe,
+    
+    ani_exc = animation.FuncAnimation(fig1, animate_exc, frames=len(res['tlist']), interval=50, blit=False, repeat=True)
+    st.pyplot(fig1)
+
+with col2:
+    fig2, ax2 = plt.subplots(figsize=(8, 5))
+    line_n, = ax2.plot([], [], label='<n>(t)', color='red', lw=2)
+    ax2.fill_between([], [], alpha=0.3, color='red')  # Placeholder
+    ax2.set_xlim(0, T); ax2.set_ylim(0, max(res['n']) * 1.1)
+    ax2.set_ylabel('Photon Number'); ax2.set_xlabel('Time t')
+    ax2.legend(); ax2.grid(alpha=0.3)
+    
+    def animate_n(i):
+        line_n.set_data(res['tlist'][:i], res['n'][:i])
+        ax2.fill_between(res['tlist'][:i], np.maximum(0, res['n'][:i] - res['std_n']), res['n'][:i] + res['std_n'], alpha=0.3, color='red')
+        return line_n,
+    
+    ani_n = animation.FuncAnimation(fig2, animate_n, frames=len(res['tlist']), interval=50, blit=False, repeat=True)
+    st.pyplot(fig2)
 
 def define_R(t, params):
     """R(t) modulator: ℏ [(t/T)^D(t) sin(ω t) e^{-λ t} + C] with spiral surprise option."""
