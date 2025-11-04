@@ -44,26 +44,26 @@ if st.sidebar.button("🔥 Unleash the Spiral!"):
 
     # Animated Canvas: Live Lash of the Lore
     col1, col2 = st.columns(2)
-   with col1:
-    st.subheader("Excitation Entanglements")
-    fig1, ax1 = plt.subplots(figsize=(8, 5))
-    line_pe, = ax1.plot([], [], label='P_single_e(t)', color='blue', lw=2)
-    line_pee = None  # Phantom ward
-    if num_atoms == 2:
-        line_pee, = ax1.plot([], [], label='P_ee(t)', color='green', lw=2)
-    ax1.set_xlim(0, T); ax1.set_ylim(0, 1.1)
-    ax1.set_ylabel('Excitation Probability'); ax1.set_xlabel('Time t')
-    ax1.legend(); ax1.grid(alpha=0.3)
+    with col1:
+        st.subheader("Excitation Entanglements")
+        fig1, ax1 = plt.subplots(figsize=(8, 5))
+        line_pe, = ax1.plot([], [], label='P_single_e(t)', color='blue', lw=2)
+        line_pee = None  # Phantom ward
+        if num_atoms == 2:
+            line_pee, = ax1.plot([], [], label='P_ee(t)', color='green', lw=2)
+        ax1.set_xlim(0, T); ax1.set_ylim(0, 1.1)
+        ax1.set_ylabel('Excitation Probability'); ax1.set_xlabel('Time t')
+        ax1.legend(); ax1.grid(alpha=0.3)
 
-    def animate_exc(i):
-        line_pe.set_data(res['tlist'][:i+1], res['P_single_e'][:i+1])  # +1 for frame-fudge
-        if num_atoms == 2 and res['P_ee'] is not None and line_pee is not None:
-            line_pee.set_data(res['tlist'][:i+1], res['P_ee'][:i+1])
-        return (line_pe, line_pee) if line_pee is not None else (line_pe,)
+        def animate_exc(i):
+            line_pe.set_data(res['tlist'][:i+1], res['P_single_e'][:i+1])  # +1 for frame-fudge
+            if num_atoms == 2 and res['P_ee'] is not None and line_pee is not None:
+                line_pee.set_data(res['tlist'][:i+1], res['P_ee'][:i+1])
+            return (line_pe, line_pee) if line_pee is not None else (line_pe,)
 
-    ani_exc = animation.FuncAnimation(fig1, animate_exc, frames=len(res['tlist']), interval=50, blit=False, repeat=True)
-    plt.close(fig1)
-       st.pyplot(fig1)
+        ani_exc = animation.FuncAnimation(fig1, animate_exc, frames=len(res['tlist']), interval=50, blit=False, repeat=True)
+        plt.close(fig1)  # Post-ani, pre-pyplot
+        st.pyplot(fig1)
 
     with col2:
         st.subheader("Photon Gyre")
@@ -72,7 +72,6 @@ if st.sidebar.button("🔥 Unleash the Spiral!"):
         ax2.set_xlim(0, T); ax2.set_ylim(0, max(res['n']) * 1.1 or 1.0)
         ax2.set_ylabel('Photon Number'); ax2.set_xlabel('Time t')
         ax2.legend(); ax2.grid(alpha=0.3)
-        plt.close(fig2)
 
         def animate_n(i):
             line_n.set_data(res['tlist'][:i+1], res['n'][:i+1])
@@ -83,7 +82,9 @@ if st.sidebar.button("🔥 Unleash the Spiral!"):
             return (line_n,)
 
         ani_n = animation.FuncAnimation(fig2, animate_n, frames=len(res['tlist']), interval=50, blit=False, repeat=True)
-       plt.close(fig2)
-            st.pyplot(fig2)
+        plt.close(fig2)  # Post-ani, pre-pyplot
+        st.pyplot(fig2)
+
+    st.markdown("**R(t) Samples (t=0,5,10,15,20):** " + ", ".join([f"{r:.3f}" for r in res['R_samples']]))
 
     st.markdown("**R(t) Samples (t=0,5,10,15,20):** " + ", ".join([f"{r:.3f}" for r in res['R_samples']]))
