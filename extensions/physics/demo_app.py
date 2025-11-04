@@ -36,11 +36,18 @@ params = {
 if st.sidebar.button("🔥 Unleash the Spiral!"):
     with st.spinner("Coiling the cavity..."):
         res = tavis_spiral.simulate_rabi_spiral(params)
-        mark = tavis_spiral.spiral_mark(params)  # Or from res, if preferred
+        mark = res['spiral_mark']
     
     # Sidebar Sigil
     st.sidebar.markdown(f"**Mark:** {mark}")
     st.sidebar.markdown("**Std <n>:** {:.3f}".format(res['std_n']))
+
+    # Debug: Print raw data to console for verification
+    st.sidebar.markdown("---")
+    st.sidebar.code(f"P_single_e end: {res['P_single_e'][-1]:.3f}", language="text")
+    if num_atoms == 2:
+        st.sidebar.code(f"P_ee end: {res['P_ee'][-1]:.3f}", language="text")
+    st.sidebar.code(f"<n> end: {res['n'][-1]:.3f}", language="text")
 
     # Animated Canvas: Live Lash of the Lore
     col1, col2 = st.columns(2)
@@ -62,7 +69,7 @@ if st.sidebar.button("🔥 Unleash the Spiral!"):
             return (line_pe, line_pee) if line_pee is not None else (line_pe,)
 
         ani_exc = animation.FuncAnimation(fig1, animate_exc, frames=len(res['tlist']), interval=50, blit=False, repeat=True)
-        plt.close(fig1)  # Post-ani, pre-pyplot
+        # No plt.close: Let Streamlit render the animated fig
         st.pyplot(fig1)
 
     with col2:
@@ -82,7 +89,10 @@ if st.sidebar.button("🔥 Unleash the Spiral!"):
             return (line_n,)
 
         ani_n = animation.FuncAnimation(fig2, animate_n, frames=len(res['tlist']), interval=50, blit=False, repeat=True)
-        plt.close(fig2)  # Post-ani, pre-pyplot
+        # No plt.close: Let Streamlit render the animated fig
         st.pyplot(fig2)
 
-    st.markdown("**R(t) Samples (t=0,5,10,15,20):** " + ", ".join([f"{r:.3f}" for r in res['R_samples']]))
+    # R(t) samples at varied points for visibility (avoids sin=0 zeros)
+    sample_ts = [1, 4, 6, 9, 12]  # Non-integer for sin variation
+    varied_R = [tavis_spiral.define_R(tt, params) for tt in sample_ts]
+    st.markdown("**R(t) Samples (varied t=1,4,6,9,12):** " + ", ".join([f"{r:.3f}" for r in varied_R]))
