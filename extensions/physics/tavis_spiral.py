@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt  # For optional viz
@@ -196,4 +197,6 @@ if __name__ == "__main__":
     print(f"\nSpiral Multi-Atom - Std dev <n>: {res_multi['std_n']:.3f}")
     print("P_ee at end:", f"{res_multi['P_ee'][-1]:.3f}")
     print("P_single_e at end:", f"{res_multi['P_single_e'][-1]:.3f}")
-    print("R samples:", [f"{r:.3f}" for r in res_multi
+    print("R samples:", [f"{r:.3f}" for r in res_multi['R_samples']])
+    print(f"Spiral Mark: {res_multi['spiral_mark']}")
+    visualize_results(res_multi, multi_params)
