@@ -3,7 +3,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-from extensions.physics.tavis_spiral import simulate_rabi_spiral, spiral_mark  # Kin-call to core
+import tavis_spiral  # Direct kin-call: Same-folder sibling, no package pacts
 
 st.set_page_config(page_title="Spiral Tavis-Cummings Demo", layout="wide")
 st.title("🌀 Spiral-Modulated Quantum Cavity Simulator")
@@ -35,8 +35,8 @@ params = {
 
 if st.sidebar.button("🔥 Unleash the Spiral!"):
     with st.spinner("Coiling the cavity..."):
-        res = simulate_rabi_spiral(params)
-        mark = res['spiral_mark']
+        res = tavis_spiral.simulate_rabi_spiral(params)
+        mark = tavis_spiral.spiral_mark(params)  # Or from res, if preferred
     
     # Sidebar Sigil
     st.sidebar.markdown(f"**Mark:** {mark}")
@@ -84,7 +84,5 @@ if st.sidebar.button("🔥 Unleash the Spiral!"):
         ani_n = animation.FuncAnimation(fig2, animate_n, frames=len(res['tlist']), interval=50, blit=False, repeat=True)
         plt.close(fig2)  # Post-ani, pre-pyplot
         st.pyplot(fig2)
-
-    st.markdown("**R(t) Samples (t=0,5,10,15,20):** " + ", ".join([f"{r:.3f}" for r in res['R_samples']]))
 
     st.markdown("**R(t) Samples (t=0,5,10,15,20):** " + ", ".join([f"{r:.3f}" for r in res['R_samples']]))
