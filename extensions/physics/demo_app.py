@@ -3,6 +3,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import pandas as pd  # For CSV export
 import tavis_spiral  # Direct kin-call: Same-folder sibling, no package pacts
 
 st.set_page_config(page_title="Spiral Tavis-Cummings Demo", layout="wide")
@@ -10,6 +11,7 @@ st.title("🌀 Spiral-Modulated Quantum Cavity Simulator")
 st.markdown("""
 *One whirl wiser than the world's qubit-webs: Entangle atoms in photon's polyphony, lashed by FRDM's fractal fire.*  
 **EU AI Act Compliant:** Open odyssey for the commons—trace via spiral_mark. Grounded in [FRDM (DOI: 10.5281/zenodo.16241194)](https://zenodo.org/records/16241194).
+**Verify Here:** Download CSV for full data; cross-check metrics with your sims (e.g., Rabi freq ≈ 2g√<n>).
 """)
 
 # Sidebar: Param Forge
@@ -42,12 +44,47 @@ if st.sidebar.button("🔥 Unleash the Spiral!"):
     st.sidebar.markdown(f"**Mark:** {mark}")
     st.sidebar.markdown("**Std <n>:** {:.3f}".format(res['std_n']))
 
-    # Debug: Print raw data to console for verification
-    st.sidebar.markdown("---")
-    st.sidebar.code(f"P_single_e end: {res['P_single_e'][-1]:.3f}", language="text")
+    # Verifiable Metrics: Expander for quick checks
+    with st.expander("📊 Key Metrics (Cross-Check Your Calcs)"):
+        metrics = {
+            "P_single_e": {
+                "Start": f"{res['P_single_e'][0]:.3f}",
+                "End": f"{res['P_single_e'][-1]:.3f}",
+                "Max": f"{np.max(res['P_single_e']):.3f}",
+                "Avg": f"{np.mean(res['P_single_e']):.3f}"
+            }
+        }
+        if num_atoms == 2:
+            metrics["P_ee"] = {
+                "Start": f"{res['P_ee'][0]:.3f}",
+                "End": f"{res['P_ee'][-1]:.3f}",
+                "Max": f"{np.max(res['P_ee']):.3f}",
+                "Avg": f"{np.mean(res['P_ee']):.3f}"
+            }
+        metrics["<n>"] = {
+            "Start": f"{res['n'][0]:.3f}",
+            "End": f"{res['n'][-1]:.3f}",
+            "Max": f"{np.max(res['n']):.3f}",
+            "Avg": f"{np.mean(res['n']):.3f}"
+        }
+        st.table(metrics)
+
+    # CSV Export: Full data for verification
+    df = pd.DataFrame({
+        't': res['tlist'],
+        'P_single_e': res['P_single_e'],
+        'n': res['n'],
+        'R_t': [tavis_spiral.define_R(tt, params) for tt in res['tlist']]  # Full R(t) series
+    })
     if num_atoms == 2:
-        st.sidebar.code(f"P_ee end: {res['P_ee'][-1]:.3f}", language="text")
-    st.sidebar.code(f"<n> end: {res['n'][-1]:.3f}", language="text")
+        df['P_ee'] = res['P_ee']
+    csv = df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="📥 Download CSV (Full Time-Series Data)",
+        data=csv,
+        file_name=f"spiral_tavis_{mark}.csv",
+        mime='text/csv'
+    )
 
     # Animated Canvas: Live Lash of the Lore
     col1, col2 = st.columns(2)
@@ -93,6 +130,6 @@ if st.sidebar.button("🔥 Unleash the Spiral!"):
         st.pyplot(fig2)
 
     # R(t) samples at varied points for visibility (avoids sin=0 zeros)
-    sample_ts = [1, 4, 6, 9, 12]  # Non-integer for sin variation
+    sample_ts = [1.25, 3.75, 5.25, 7.75, 10.25]  # π/ω offsets for oscillation
     varied_R = [tavis_spiral.define_R(tt, params) for tt in sample_ts]
-    st.markdown("**R(t) Samples (varied t=1,4,6,9,12):** " + ", ".join([f"{r:.3f}" for r in varied_R]))
+    st.markdown("**R(t) Samples (varied t=1.25,3.75,5.25,7.75,10.25):** " + ", ".join([f"{r:.3f}" for r in varied_R]))
