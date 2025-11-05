@@ -1,6 +1,10 @@
 import streamlit as st
-from .core import tricorder_scan
-from .ais import ais_scan
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # Fallback for current dir
+
+from tricorder.core import tricorder_scan
+from tricorder.ais import ais_scan
 import pandas as pd
 from io import BytesIO
 import matplotlib.pyplot as plt
