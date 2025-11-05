@@ -1,14 +1,20 @@
 import numpy as np
 from typing import Dict, List, Tuple
 from functools import lru_cache  # Cache for efficiency
+import networkx as nx  # Already in viz; reuse
 
-@lru_cache(maxsize=128)  # Cache repeated seeds
-def relational_map(context_seed: str) -> Tuple[List[str], List[Tuple[str, str, float]]]:
-    """Extract nodes/edges (capped for perf)."""
+@lru_cache(maxsize=128)
+def relational_map(context_seed: str, td_max: int = 3) -> Tuple[List[str], List[Tuple[str, str, float]]]:
     words = context_seed.lower().split()
-    nodes = list(set(words))
-    edges = [(words[i], words[i+1], 0.8) for i in range(min(len(words)-1, 20))]  # Cap at 20 edges
-    return nodes, edges
+    G = nx.Graph()
+    G.add_edges_from([(words[i], words[i+1], {'weight': 0.8}) for i in range(len(words)-1)])
+    edges = []
+    for node in set(words):
+        neighbors = list(nx.single_source_shortest_path(G, node, cutoff=td_max).items())
+        for tgt, path in neighbors:
+            if len(path) <= td_max + 1:  # Hop limit
+                edges.append((node, tgt, 0.8))
+    return list(set(words)), edges[:20]  # Final cap
 
 def init_vector(nodes: List[str]) -> np.ndarray:
     return np.array([1.0, 0.0, 0.0])
@@ -43,13 +49,15 @@ def tricorder_scan(context_seed: str, domain: str = 'tech', max_iters: int = 3) 
     state = init_vector(nodes)
     new_insights = "neutral_perturbation"
     
-    for i in range(max_iters):
-        E = explore_factor(edges, domain)
-        grad_R = relevance_grad(state, edges)
-        A = adjust_pert(state, new_insights)
-        state = update_spiral(state, E, grad_R, A)
-        if convergence(state) > 0.85:
-            break
+for i in range(max_iters):
+    E = explore_factor(edges, domain)
+    grad_R = relevance_grad(state, edges)
+    rf_thresh = 0.5  # Tune; higher for strict mitigation
+    edges = [e for e in edges if e[2] * grad_R[0] > rf_thresh]  # Prune low-RF
+    A = adjust_pert(state, new_insights)
+    state = update_spiral(state, E, grad_R, A)
+    if convergence(state) > 0.85:
+        break
     
     chains = build_output(state, edges)
     srm = {"ethics_drift": min(1.0, 1 - abs(state[2])), "fire_integrity": float(state[0])}
