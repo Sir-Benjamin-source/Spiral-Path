@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Spiral Path Tricorder CLI: Probe contexts, forge chains.
-Usage: python main.py "debug latency" --domain tech --max_iters 3 --output json --viz --ais --seeds seeds.txt
+Usage: python main.py "debug latency" --domain tech --max_iters 3 --output json --viz --ais --seeds seeds.txt --td_max 3
 """
 
 import argparse
@@ -11,7 +11,7 @@ from typing import Dict, List
 import matplotlib.pyplot as plt
 import networkx as nx
 from core import tricorder_scan
-from ais import ais_scan, quant_report  # AIS wrapper + report
+from ais import ais_scan, quant_report
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -25,6 +25,8 @@ def parse_args():
                         help='Scan domain (default: tech).')
     parser.add_argument('--max_iters', type=int, default=5, 
                         help='Max spiral iterations (default: 5).')
+    parser.add_argument('--td_max', type=int, default=3, 
+                        help='Tangent depth cap in relational map (default: 3).')
     parser.add_argument('--output', type=str, default='text', 
                         choices=['text', 'json'], 
                         help='Output format (default: text).')
@@ -107,16 +109,16 @@ def main():
         print(f"\nAIS Quant Report: {report_file}")
         print(render_result(result, args.output))
     elif args.seed:
-        result = tricorder_scan(args.seed, args.domain, args.max_iters)
+        result = tricorder_scan(args.seed, args.domain, args.max_iters, td_max=args.td_max)
         result['domain'] = args.domain
         print(render_result(result, args.output))
     else:
         print("Error: Provide --seed or --seeds with --ais.")
         return
     
-    if args.viz and results:
+    if args.viz and 'results' in locals():
         os.makedirs('outputs', exist_ok=True)
-        for idx, result in enumerate(results if results else [result]):
+        for idx, result in enumerate(results if 'results' in locals() else [result]):
             viz_file = f"outputs/{result['seed'].replace(' ', '_')}_chains.png"
             chains = result['chains']
             generate_viz(chains, viz_file)
