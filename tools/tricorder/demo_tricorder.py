@@ -1,10 +1,23 @@
 import streamlit as st
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # Fallback for current dir
 
-from tricorder.core import tricorder_scan
-from tricorder.ais import ais_scan
+# Robust path hack: Append current and parent dirs
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
+sys.path.insert(0, os.path.join(current_dir, '..'))  # Parent for package
+
+try:
+    from core import tricorder_scan  # Relative fallback if in dir
+    from ais import ais_scan
+except ImportError:
+    try:
+        from tricorder.core import tricorder_scan  # Absolute if package
+        from tricorder.ais import ais_scan
+    except ImportError as e:
+        st.error(f"Import error: {e}. Ensure core.py and ais.py in tricorder/. Run from /tools/ or install with setup.py.")
+        st.stop()
+
 import pandas as pd
 from io import BytesIO
 import matplotlib.pyplot as plt
