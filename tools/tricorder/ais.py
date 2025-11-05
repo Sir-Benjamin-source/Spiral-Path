@@ -27,6 +27,19 @@ def quant_report(results: List[Dict], filename: str = 'ais_quant.csv'):
             })
     return filename
 
+def tangent_filter(edges: List[Tuple[str, str, float]], tw_thresh: float = 0.6) -> Tuple[List[Tuple[str, str, float]], List[Tuple[str, str, float]]]:
+    main_edges = [e for e in edges if e[2] > tw_thresh]  # High TW keep
+    tangents = [e for e in edges if e[2] <= tw_thresh]  # Quarantine
+    return main_edges, tangents
+
+def ais_scan(seed: str, domain: str = 'tech', max_iters: int = 3) -> Dict:
+    # ... existing precheck ...
+    nodes, raw_edges = relational_map(seed)
+    main_edges, tangents = tangent_filter(raw_edges)
+    result = tricorder_scan(seed, domain, max_iters)  # Pass main_edges if mod
+    result['srm']['pruned_tangents'] = len(tangents)
+    return result
+
 def ais_scan(seed: str, domain: str = 'tech', max_iters: int = 3) -> Dict:
     """AIS-wrapped scan: Precheck + core + quant prep."""
     consent_factor = ethics_precheck(seed)
