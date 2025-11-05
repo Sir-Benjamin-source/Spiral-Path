@@ -1,0 +1,14 @@
+{
+  "sample_seed": "debug latency",
+  "domain": "tech",
+  "chains": {
+    "primary_chain": [["debug", "latency", 0.8], ["latency", "in", 0.8]],
+    "poetic_fork": [{"node": "in", "rel": "software", "weight": 0.8}],
+    "hypothesis_strength": 1.28
+  },
+  "srm": {
+    "ethics_drift": 1.0,
+    "fire_integrity": 1.28
+  },
+  "iters": 3
+}
