@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 """
 Spiral Path Tricorder CLI: Probe contexts, forge chains.
-Usage: python main.py "debug latency" --domain tech --max_iters 3 --output json --viz --ais
+Usage: python main.py "debug latency" --domain tech --max_iters 3 --output json --viz --ais --seeds seeds.txt
 """
 
 import argparse
 import json
 import os
-from typing import Dict
+from typing import Dict, List
 import matplotlib.pyplot as plt
 import networkx as nx
-from core import tricorder_scan  # Core engine; assume in same dir or sys.path
-from ais import ais_scan, quant_report  # AIS wrapper + report; assume ais.py in dir
+from core import tricorder_scan
+from ais import ais_scan, quant_report  # AIS wrapper + report
 
 def parse_args():
     parser = argparse.ArgumentParser(
         description='Tricorder: Spiral-scan contexts for relational chains & SRM insights.',
         epilog='Ethical note: Anchors in A.I.S. reality; consent-checked at inflow.'
     )
-    parser.add_argument('seed', type=str, help='Context seed (query/text/dataset snippet).')
+    parser.add_argument('seed', type=str, nargs='?', default=None, help='Context seed (query/text/dataset snippet). Use with --seeds for batch.')
+    parser.add_argument('--seeds', type=str, help='File with seeds (one per line) for batch AIS scan.')
     parser.add_argument('--domain', type=str, default='tech', 
                         choices=['tech', 'poetic', 'research'], 
                         help='Scan domain (default: tech).')
@@ -40,12 +41,15 @@ def render_result(result: Dict, fmt: str = 'text') -> str:
         chains = result['chains']
         srm = result['srm']
         iters = result['iters']
-        consent = result.get('consent_factor', 1.0)  # From AIS
+        consent = result.get('consent_factor', 1.0)
+        pruned = srm.get('pruned_tangents', 0)
         out = f"=== Tricorder Scan Results ===\n"
         out += f"Seed Domain: {result.get('domain', 'unspecified')}\n"
         out += f"Iterations: {iters}\n"
         if consent < 1.0:
             out += f"Consent Factor: {consent:.2f}\n"
+        if pruned > 0:
+            out += f"Pruned Tangents: {pruned}\n"
         out += "\nPrimary Chains:\n"
         for edge in chains['primary_chain']:
             out += f"  {edge[0]} → {edge[1]} (w: {edge[2]})\n"
@@ -58,23 +62,16 @@ def render_result(result: Dict, fmt: str = 'text') -> str:
         return out
 
 def generate_viz(chains: Dict, filename: str = 'chain_graph.png'):
-    """Viz: NetworkX graph of chains, colored by weight."""
     G = nx.DiGraph()
-    
-    # Primary chain
-    for i, edge in enumerate(chains['primary_chain']):
+    for edge in chains['primary_chain']:
         src, tgt, wt = edge
         G.add_edge(src, tgt, weight=wt, color='green' if wt > 0.7 else 'yellow')
-    
-    # Poetic fork
     for fork in chains['poetic_fork']:
         node, rel, wt = fork['node'], fork['rel'], fork['weight']
         G.add_edge(node, rel, weight=wt, color='blue' if wt > 0.8 else 'orange')
-    
     pos = nx.spring_layout(G)
     edge_colors = [G[u][v]['color'] for u, v in G.edges()]
-    weights = [G[u][v]['weight'] * 5 for u, v in G.edges()]  # Scale for viz
-    
+    weights = [G[u][v]['weight'] * 5 for u, v in G.edges()]
     plt.figure(figsize=(8, 6))
     nx.draw(G, pos, with_labels=True, node_color='lightblue', 
             edge_color=edge_colors, width=weights, arrows=True, 
@@ -86,23 +83,44 @@ def generate_viz(chains: Dict, filename: str = 'chain_graph.png'):
 
 def main():
     args = parse_args()
-    if args.ais:
+    results = []
+    if args.seeds and args.ais:
+        if not os.path.exists(args.seeds):
+            print(f"Error: Seeds file '{args.seeds}' not found.")
+            return
+        with open(args.seeds, 'r') as f:
+            seeds = [line.strip() for line in f if line.strip()]
+        if not seeds:
+            print("Error: No seeds in file.")
+            return
+        for seed in seeds:
+            result = ais_scan(seed, args.domain, args.max_iters)
+            result['domain'] = args.domain
+            results.append(result)
+        report_file = quant_report(results)
+        print(f"\nBatch AIS Quant Report: {report_file} ({len(results)} seeds)")
+        print(render_result(results[0], args.output))  # Sample first
+    elif args.seed and args.ais:
         result = ais_scan(args.seed, args.domain, args.max_iters)
-        report_file = quant_report([result])  # Single for now; batch later
+        result['domain'] = args.domain
+        report_file = quant_report([result])
         print(f"\nAIS Quant Report: {report_file}")
-    else:
+        print(render_result(result, args.output))
+    elif args.seed:
         result = tricorder_scan(args.seed, args.domain, args.max_iters)
+        result['domain'] = args.domain
+        print(render_result(result, args.output))
+    else:
+        print("Error: Provide --seed or --seeds with --ais.")
+        return
     
-    result['domain'] = args.domain  # Stamp for render
-    
-    print(render_result(result, args.output))
-    
-    if args.viz:
+    if args.viz and results:
         os.makedirs('outputs', exist_ok=True)
-        viz_file = f"outputs/{args.seed.replace(' ', '_')}_chains.png"
-        chains = result['chains']
-        generate_viz(chains, viz_file)
-        print(f"\nViz saved: {viz_file}")
+        for idx, result in enumerate(results if results else [result]):
+            viz_file = f"outputs/{result['seed'].replace(' ', '_')}_chains.png"
+            chains = result['chains']
+            generate_viz(chains, viz_file)
+            print(f"Viz {idx+1}: {viz_file}")
 
 if __name__ == "__main__":
     main()
