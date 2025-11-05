@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Dict, List, Tuple
 from functools import lru_cache  # Cache for efficiency
-import networkx as nx  # Already in viz; reuse
+import networkx as nx  # For hop-limited map
 
 @lru_cache(maxsize=128)
 def relational_map(context_seed: str, td_max: int = 3) -> Tuple[List[str], List[Tuple[str, str, float]]]:
@@ -48,17 +48,19 @@ def tricorder_scan(context_seed: str, domain: str = 'tech', max_iters: int = 3) 
     nodes, edges = relational_map(context_seed)
     state = init_vector(nodes)
     new_insights = "neutral_perturbation"
+    iters_run = 0
     
-for i in range(max_iters):
-    E = explore_factor(edges, domain)
-    grad_R = relevance_grad(state, edges)
-    rf_thresh = 0.5  # Tune; higher for strict mitigation
-    edges = [e for e in edges if e[2] * grad_R[0] > rf_thresh]  # Prune low-RF
-    A = adjust_pert(state, new_insights)
-    state = update_spiral(state, E, grad_R, A)
-    if convergence(state) > 0.85:
-        break
+    for i in range(max_iters):
+        iters_run = i + 1
+        E = explore_factor(edges, domain)
+        grad_R = relevance_grad(state, edges)
+        rf_thresh = 0.5  # Tune; higher for strict mitigation
+        edges = [e for e in edges if e[2] * grad_R[0] > rf_thresh]  # Prune low-RF
+        A = adjust_pert(state, new_insights)
+        state = update_spiral(state, E, grad_R, A)
+        if convergence(state) > 0.85:
+            break
     
     chains = build_output(state, edges)
     srm = {"ethics_drift": min(1.0, 1 - abs(state[2])), "fire_integrity": float(state[0])}
-    return {"chains": chains, "srm": srm, "iters": i + 1}
+    return {"chains": chains, "srm": srm, "iters": iters_run}
