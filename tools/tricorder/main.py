@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Spiral Path Tricorder CLI: Probe contexts, forge chains.
-Usage: python main.py "debug latency" --domain tech --max_iters 3 --output json --viz
+Usage: python main.py "debug latency" --domain tech --max_iters 3 --output json --viz --ais
 """
 
 import argparse
@@ -11,6 +11,7 @@ from typing import Dict
 import matplotlib.pyplot as plt
 import networkx as nx
 from core import tricorder_scan  # Core engine; assume in same dir or sys.path
+from ais import ais_scan, quant_report  # AIS wrapper + report; assume ais.py in dir
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -28,6 +29,8 @@ def parse_args():
                         help='Output format (default: text).')
     parser.add_argument('--viz', action='store_true', 
                         help='Generate PNG graph viz of chains (saves to outputs/).')
+    parser.add_argument('--ais', action='store_true', 
+                        help='Enable AIS mode: ethics precheck + quant export.')
     return parser.parse_args()
 
 def render_result(result: Dict, fmt: str = 'text') -> str:
@@ -37,10 +40,13 @@ def render_result(result: Dict, fmt: str = 'text') -> str:
         chains = result['chains']
         srm = result['srm']
         iters = result['iters']
+        consent = result.get('consent_factor', 1.0)  # From AIS
         out = f"=== Tricorder Scan Results ===\n"
         out += f"Seed Domain: {result.get('domain', 'unspecified')}\n"
-        out += f"Iterations: {iters}\n\n"
-        out += "Primary Chains:\n"
+        out += f"Iterations: {iters}\n"
+        if consent < 1.0:
+            out += f"Consent Factor: {consent:.2f}\n"
+        out += "\nPrimary Chains:\n"
         for edge in chains['primary_chain']:
             out += f"  {edge[0]} → {edge[1]} (w: {edge[2]})\n"
         out += "\nPoetic/Alt Fork:\n"
@@ -80,7 +86,13 @@ def generate_viz(chains: Dict, filename: str = 'chain_graph.png'):
 
 def main():
     args = parse_args()
-    result = tricorder_scan(args.seed, args.domain, args.max_iters)
+    if args.ais:
+        result = ais_scan(args.seed, args.domain, args.max_iters)
+        report_file = quant_report([result])  # Single for now; batch later
+        print(f"\nAIS Quant Report: {report_file}")
+    else:
+        result = tricorder_scan(args.seed, args.domain, args.max_iters)
+    
     result['domain'] = args.domain  # Stamp for render
     
     print(render_result(result, args.output))
