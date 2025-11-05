@@ -64,3 +64,6 @@ def tricorder_scan(context_seed: str, domain: str = 'tech', max_iters: int = 3, 
     chains = build_output(state, edges)
     srm = {"ethics_drift": min(1.0, 1 - abs(state[2])), "fire_integrity": float(state[0])}
     return {"chains": chains, "srm": srm, "iters": iters_run}
+    
+if not edges:
+    edges = raw_edges[:1] if 'raw_edges' in locals() else [(context_seed.split()[0], context_seed.split()[1], 0.5)]  # Min chain
