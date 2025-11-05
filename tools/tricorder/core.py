@@ -46,6 +46,7 @@ def build_output(state: np.ndarray, edges: List[Tuple[str, str, float]]) -> Dict
 
 def tricorder_scan(context_seed: str, domain: str = 'tech', max_iters: int = 3, td_max: int = 3) -> Dict:
     nodes, edges = relational_map(context_seed, td_max)
+    raw_edges = edges.copy()  # Capture for fallback
     state = init_vector(nodes)
     new_insights = "neutral_perturbation"
     iters_run = 0
@@ -61,9 +62,10 @@ def tricorder_scan(context_seed: str, domain: str = 'tech', max_iters: int = 3, 
         if convergence(state) > 0.85:
             break
     
+    # Fallback if all pruned
+    if not edges:
+        edges = raw_edges[:1] if raw_edges else [(context_seed.split()[0], context_seed.split()[1], 0.5)]  # Min chain
+    
     chains = build_output(state, edges)
     srm = {"ethics_drift": min(1.0, 1 - abs(state[2])), "fire_integrity": float(state[0])}
     return {"chains": chains, "srm": srm, "iters": iters_run}
-    
-if not edges:
-    edges = raw_edges[:1] if 'raw_edges' in locals() else [(context_seed.split()[0], context_seed.split()[1], 0.5)]  # Min chain
