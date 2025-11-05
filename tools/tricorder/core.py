@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Dict, List, Tuple
-from functools import lru_cache  # Cache for efficiency
-import networkx as nx  # For hop-limited map
+from functools import lru_cache
+import networkx as nx
 
 @lru_cache(maxsize=128)
 def relational_map(context_seed: str, td_max: int = 3) -> Tuple[List[str], List[Tuple[str, str, float]]]:
@@ -14,7 +14,7 @@ def relational_map(context_seed: str, td_max: int = 3) -> Tuple[List[str], List[
         for tgt, path in neighbors:
             if len(path) <= td_max + 1:  # Hop limit
                 edges.append((node, tgt, 0.8))
-    return list(set(words)), edges[:20]  # Final cap
+    return list(set(words)), edges[:10]  # Final cap (reduced for perf)
 
 def init_vector(nodes: List[str]) -> np.ndarray:
     return np.array([1.0, 0.0, 0.0])
@@ -44,8 +44,8 @@ def build_output(state: np.ndarray, edges: List[Tuple[str, str, float]]) -> Dict
         "hypothesis_strength": float(state[0])
     }
 
-def tricorder_scan(context_seed: str, domain: str = 'tech', max_iters: int = 3) -> Dict:  # Default 3 for speed
-    nodes, edges = relational_map(context_seed)
+def tricorder_scan(context_seed: str, domain: str = 'tech', max_iters: int = 3, td_max: int = 3) -> Dict:
+    nodes, edges = relational_map(context_seed, td_max)
     state = init_vector(nodes)
     new_insights = "neutral_perturbation"
     iters_run = 0
@@ -54,7 +54,7 @@ def tricorder_scan(context_seed: str, domain: str = 'tech', max_iters: int = 3) 
         iters_run = i + 1
         E = explore_factor(edges, domain)
         grad_R = relevance_grad(state, edges)
-        rf_thresh = 0.5  # Tune; higher for strict mitigation
+        rf_thresh = 0.5
         edges = [e for e in edges if e[2] * grad_R[0] > rf_thresh]  # Prune low-RF
         A = adjust_pert(state, new_insights)
         state = update_spiral(state, E, grad_R, A)
