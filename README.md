@@ -102,6 +102,22 @@ This repo shines with practical code to bring the theory to life. Key highlights
 
 All examples are self-contained, with params tunable for your workflows. Start with the simulator to feel the flow.
 
+## Work vs. Play — No Bleed
+| Mode | Path | Logs To | Theme Sentry |
+|------|------|---------|--------------|
+| **Work** | `examples/`, `auditors/` | `audit_helix_log.jsonl` | Strict |
+| **Play** | `playground/` | `play_log.jsonl` | Isolated |
+
+> **AI Prompt**: _"Load CONTEXT_STRING_GUIDELINES. Classify: [your input]. Route and run."_
+
+## Playgrounds
+```bash
+# Work: Debug
+python examples/debug_latency.py
+
+# Play: Dune
+python playground/dune/becoming.py --input "We are the becoming"
+
 **Installation & Usage**  
 No heavy deps—pure Python for core sims. Core: numpy, matplotlib (for viz). Advanced: Add networkx for graph-based spirals; pandas for data handling.  
 Run `pip install -r requirements.txt` for basics.
