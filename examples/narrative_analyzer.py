@@ -5,6 +5,35 @@ from sklearn.cluster import KMeans
 import matplotlib.pyplot as plt
 import json
 
+# Add sentry import (assumes auditors/ in path)
+from auditors.theme_sentry import classify_input, log_classification  # If adding .py; else inline sniffer logic
+
+def analyze_with_sentry(text):
+    signal = classify_input(text)
+    log_classification(signal, text)
+    
+    if signal.type == "blocked":
+        print(f"[QUARANTINE] {signal.reason} — Ejected to void!")
+        return None
+    elif signal.type == "play":
+        print("🐭 Narrative mode: Themes spiral free...")
+        # Your existing theme extraction
+        return extract_themes(text)  # e.g., generate theme_spiral.png
+    elif signal.type == "mixed":
+        print("[SPLIT] Work to audit_helix_log.jsonl | Play to play_log.jsonl")
+        # Run both: hypothesis part → fidelity check; Muad’Dib → glory output
+        work_part = "Hypothesis fidelity check."  # Parse simple
+        play_part = "We are the becoming, Muad’Dib!"
+        analyze_work(work_part)  # Tie to hypothesis_tester
+        analyze_play(play_part)  # Tie to becoming.py
+        return "Split complete—no bleed."
+    else:  # work
+        print("🔬 Inquiry mode: Fidelity locked.")
+        return your_spiral_equation_run(text)  # e.g., ± flux on hypothesis
+
+# Test in app: analyze_with_sentry("We are the becoming, Muad’Dib! Hypothesis fidelity check.")
+# Expected: SPLIT → Logs to both JSONL, outputs like your sniffer (quarantine if drama spikes).
+
 # Import the engine
 from spiral_engine import SpiralEngine
 
