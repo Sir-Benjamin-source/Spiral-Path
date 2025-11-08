@@ -128,6 +128,25 @@ Built with love in the helix's hush—iterate, refine, ascend.
 
 The Spiral Path extends beyond data's dance into the domains of deeper dynamics—fractal rhythms applied to emergent phenomena. Behold the **Spiral-Modulated Tavis-Cummings Simulator**: A quantum cavity conquest for 1-2 atoms entangled in photon's polyphony, lashed by our FRDM-forged R(t) modulator (ℏ[(t/T)^D sin(ωt) e^{-λt} + C]). One iteration beyond the baselines: Noise-robust revivals, dynamic D-whirls in "spiral_mode" for adaptive arcs, and EU-compliant spiral-marks for long-haul lore-tracking.
 
+## Work vs. Play — **No Bleed**
+| Mode | Path | Logs To | Theme Sentry |
+|------|------|---------|--------------|
+| **Work** | `examples/`, `auditors/` | `audit_helix_log.jsonl` | Strict |
+| **Play** | `playground/` | `play_log.jsonl` | Isolated |
+
+> **AI Prompt**:  
+> _"Load CONTEXT_STRING_GUIDELINES. Classify: [your input]. Route and run."_
+
+---
+
+## Playgrounds
+```bash
+# Work: Debug
+python examples/debug_latency.py
+
+# Play: Dune
+python playground/dune/becoming.py --input "We are the becoming"
+
 - **Glory Gleaned:** Populations pulse (P_ee ~0.170 end-decay, P_single ~0.600 surge), <n> gyres with std ~0.600—qubits kissed closer than the cloistered can chart.
 - **Quick Quest:** Install deps (`pip install -r requirements.txt`), then `python physics/tavis_spiral.py` for the base/single-atom bash; toggle `num_atoms=2` and `spiral_mode=True` for the multi-madness.
 - **DOI'd Kin:** Grounded in [FRDM (DOI: 10.5281/zenodo.16241194)](https://zenodo.org/records/16241194), [Spiral Path Tricorder (DOI: 10.5281/zenodo.15585013)](https://zenodo.org/records/15585013), and [Corq (DOI: 10.5281/zenodo.15938643)](https://zenodo.org/records/15938643). Aligned with EU AI Act's auroral arch for open-source odysseys.
