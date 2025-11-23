@@ -1,5 +1,5 @@
 # Spiral Theory: A Framework for Data Organization and Bias Reduction!
-
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Sir-Benjamin-source/Spiral-Path/blob/main/hypothesis_tester.ipynb)
 [![Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.17468251.svg)](https://zenodo.org/records/17468251)
 ![License: CC-BY-4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)
