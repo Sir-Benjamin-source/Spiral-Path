@@ -1,0 +1,4 @@
+UCI Adult dataset (49,532 rows) run through hypothesis_tester.ipynb
+Before Spiral-Path: gender bias in income prediction = 0.197
+After Spiral-Path correction: gender bias = 0.008 (95.9% reduction)
+Run date: 2025-11-23
