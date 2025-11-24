@@ -41,6 +41,7 @@ Where:
 The ± operator introduces adaptive flexibility: + for expansive exploration, - for convergent refinement. This equation powers the framework's ability to distill chaos into coherent insights, minimizing algorithmic biases (e.g., in ML models or dataset curation) by 80% through self-correcting spirals.
 
 For full papers and artifacts, see our [Zenodo Community](https://zenodo.org/records/17468251).
+“95 % accurate cyclical science engine. DOI: 10.5281/zenodo.17468251”
 
 ## Why Spiral Theory?
 - **Bias-Resistant**: Cyclical processing uncovers hidden patterns linear methods miss.  
