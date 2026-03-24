@@ -33,7 +33,16 @@ Typical full workshop flow:
 Input → Spiral-Path (iteration) → SRT (reasoning) → E_shield (ethical gate) → MAGIC-RRM (rectification) → Grounded Priority Vectors (thematic control) → Spiral-Elucidation (poetic refinement) → SentinelAct (shielding)
 
 ### Quick Start
-(Insert your existing installation, demo commands, and basic usage examples here)
+```bash
+# Basic recap with default settings
+python spiral_recap.py --input "completed_spiral_session.md"
+
+# With E_shield ethical hardening enabled
+python spiral_recap.py --input "completed_spiral_session.md" --use_e_shield
+
+# Full example with custom parameters
+python spiral_recap.py --input "session.md" --use_e_shield --weights "0.3,0.25,0.25,0.2"
+```
 
 Example:
 ```bash
