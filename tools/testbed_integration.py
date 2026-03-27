@@ -5,6 +5,9 @@
 
 import json
 from datetime import datetime
+import sys
+import os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Import from your existing modules (adjust paths if needed)
 from spiral_path import run_helical_iteration, compute_syncratude
