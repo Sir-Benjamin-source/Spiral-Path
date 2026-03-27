@@ -1,3 +1,4 @@
+```markdown
 # Tools Directory
 
 This `tools/` directory contains practical utilities and diagnostic aids for the **Spiral-Path** helical iteration engine and the broader **Spiral Codex** ecosystem.
@@ -49,3 +50,20 @@ run_full_testbed(
     branches=3
 )
 "
+```
+
+**Recommended Workflow**:
+1. Add new neutral test inputs in the `if __name__ == "__main__":` section as needed.
+2. Run before/after major integrations to confirm no drift.
+3. Review the generated audit log for scores and deltas.
+
+## Integration with Spiral-Path
+
+These tools are meant to complement the existing `tests/` folder (loop coherence, syncratude scoring, bias pruning). Use them alongside `spiral_engine.py` and the core modules for full ecosystem validation.
+
+## Contribution Guidelines
+
+- All tools must respect **E_shield** gating and the Spiral Oath.
+- Keep outputs auditable and provenance-tracked.
+- Maintain syncratude balance between human oversight and agent execution.
+- See root `CONTRIBUTING.md` and the parent **INTEGRATION_MAP.md** for full standards.
